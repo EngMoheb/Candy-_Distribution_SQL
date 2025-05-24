@@ -1,4 +1,5 @@
 # 🏭US_Candy-_Distribution_SQL
+![ Cover](Profile.jpg)
 ## 🍬 About the Project
 This is a self-guided SQL portfolio project where we load and analyze a real-world candy distribution dataset. Our goal is to showcase core SQL skills while answering meaningful business questions.
 
