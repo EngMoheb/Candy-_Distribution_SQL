@@ -1,4 +1,4 @@
-# 🏭US_Candy-Distribution_SQL🍭
+# 🏭Candy-Distribution_SQL🍭
 ![ Cover](Assets/Profile.jpg)
 
 ## 📌 About the Project
