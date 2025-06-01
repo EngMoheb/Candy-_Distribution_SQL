@@ -146,34 +146,33 @@ During **Phase 2**, we cleaned and prepared five main tables:
 
 For each table, we:
 
-1. **Validated Data Types & Removed Nulls / Invalid Values**  
-2. **Trimmed Whitespace & Normalized Case**  
-3. **Checked Ranges for Numeric / Date Columns**  
-4. **Ensured Uniqueness & No Duplicates**  
-5. **Enforced Foreign-Key Relationships**  
-6. **Created Indexes for Query Optimization**
+1. **✅Validated Data Types & Removed Nulls / Invalid Values**  
+2. **✂️Trimmed Whitespace & Normalized text casing**  
+3. **📏 Checked ranges for numeric & date columns**  
+4. **🔍 Ensured uniqueness & removed duplicates**  
+5. **🔗 Enforced foreign key relationships**  
+6. **⚡ Created indexes to boost query performance**
 
 ---
 
 ## ✨ Data Spa Treatment  
 ### 📝 Text Columns  
-- Hunted down missing values like hidden chocolate 🍫  
-- Gave all text fields **haircuts** ✂️ (trimmed extra spaces)  
-- Standardized capitalization (**no more SHOUTY** or *whispery* labels)  
-
+- Tracked down missing values like hidden chocolate 🍫
+- Gave all text fields a trim (no more extra spaces!)
+- Standardized capitalization — no more SHOUTING or whispering 🗣️
 
 ### 🔢 Numeric Columns  
-- Banished negative values
-- ⚖️ **Reality checks**  Verified coordinates were on planet Earth 🌎, prices ≥ $0 
-- 🚩 **Outlier patrol** - Flagged suspiciously large/small values  
+- Banished negative values🚫
+- ⚖️ Sanity checks: Confirmed coordinates were Earth-bound 🌍 and prices were ≥ $0
+-🚩 Flagged suspicious: outliers that looked too big (or too small) to be real 
 
 ### 📅 Date Columns  
-- Fixed time-traveling shipments (1930s orders? Deleted!)  
-- Made sure ships sailed *after* orders (logical date checks)  
-- Marked unrealistic dates (like year 3000 candy deliveries)  
+- Removed time-traveling shipments (1930s orders? Not happening!)
+- Ensured ship dates came *after* orders (logical date checks)    
+- Flagged unrealistic entries (like candy deliveries from the year 3000 🚀) 
 
 ### ✔️ Boolean Columns  
-- Replaced confusing blanks with clear TRUE/FALSE flags  
+-Replaced blanks with clear TRUE/FALSE values 
 - Verified candy categories made sense  
 
 ---
@@ -181,100 +180,88 @@ For each table, we:
 ## 🧩 Table-by-Table Transformation  
 
 ### 🏭 Factories Table  
-- 🏷️ **Name standardization** ("sweet FACTORY" → "Sweet Factory")  
-- 🌎 **Location validation** - Confirmed all factories are on planet Earth  
-- 🔑 **Unique ID enforcement** - No duplicate factories  
+- 🏷️ Standardized names ("sweet FACTORY" → "Sweet Factory")
+- 🌎 Confirmed all factory locations were geographically valid
+- 🔑 Ensured each factory had a unique ID 
 
 ### 🎯 Targets Table  
-- 📊 **Division cleanup** ("east COAST " → "East Coast")  
-- 🎯 **Target validation** - Ensured all sales targets ≥ $0  
-- 🚫 **Duplicate purge** - One division = one target  
+- 📊 Cleaned up division labels ("east COAST " → "East Coast")
+- 🎯 Validated targets to ensure all values were ≥ $0
+- 🚫 Removed duplicate entries — one division, one target
 
 ### 🍬 Products Table  
-- 🆔 **ID standardization** ("choc-123" → "CHOC-123")  
-- 💰 **Price integrity** - Flagged negative costs/prices  
-- 🤝 **Relationship fixes** - Matched products to valid factories/divisions  
+- 🆔 **Standardized product IDs** ("choc-123" → "CHOC-123")
+- 💰 **💰 Flagged invalid pricing** (no negative costs!) 
+- 🤝 **Fixed foreign keys** — every product matched to a valid factory and division
 
 ### 📮 US Zips Table  
-- 🗺️ **Geographic cleanup** ("nEw yOrk" → "New York")  
-- 🧮 **Population sanity** - Verified realistic density values  
-- 👪 **Family reunification** - Fixed parent-child ZIP relationships  
+-**🗺️ Standardized geographic names** ("nEw yOrk" → "New York")
+- **🧮 Verified population densities** were realistic
+- 👪 **Fixed parent-child** ZIP relationships where needed
 
 ### 💰 Sales Table  
-- **Fixed time paradoxes!** Deleted 1930 shipments 🕰️  
-- 📦 **Delivery metrics** - Added delivery days + delivery categories  (Q1, Q2, Q3, Q4)  
-- 💸Flagged financial oddities (negative profits? Free candy?)  
-- 🚢 **Shipping mode cleanup** - Removed invalid "Same Day" entries
-- 
+- 🕰️ **Removed 1930 shipments** that broke the space-time continuum
+- 📦 **Added delivery metrics** - Added delivery days + delivery categories  (Q1, Q2, Q3, Q4)  
+- 💸**Flagged financial oddities** (negative profits? Free candy?)  
+- 🚢 **Cleaned up shipping modes** — removed invalid entries like "Same Day"
+  
   ## 🕰️ The Case of the 1930 Shipments  
-**The Mystery:** Some shipments claimed to arrive *before* ordering!  
+**The Mystery:**Some orders claimed to ship _before_ they were placed!
 **Evidence:**  
-- 📅 56 records dated 1930  
-- ⚖️ Ship dates < order dates  
+- 📅  56 records from the year 1930
+- 🕰️ Ship dates < order dates  
 **Resolution:**  
-- 🗑️ Deleted impossible records  
-- 🔍 Added delivery metrics to catch future anomalies  
-**Why?** Like stale candy, bad data ruins the whole batch!  
+- 🗑️ Deleted all impossible records
+- 🔍 Introduced delivery metrics to flag similar issues in the future
+**Why?** Like stale candy, bad data spoils everything!  
 
 ---
 
 ## 🔗 Relationship Counseling (Foreign Keys)  
-We fixed broken family ties between tables:  
-- 🚫 **Orphan rescue** - 427 sales reunited with valid products  
-- ✉️ **ZIP reconciliation** - Missing postal codes restored  
-- 🏷️ **Division alignment** - Every product matched to proper division   
-- **Reunited** lost data children with their parent tables!  
-
+We restored the connections between related tables:
+-  **🛟 Rescued 427 sales** linked to missing products
+- **📬 Repaired ZIP code gaps**
+-  **🏷️ Ensured all products pointed to a valid division**
+- **Reconnected orphaned data entries to their parent tables**.
 > *"Like matching candy to wrappers - every piece belongs somewhere!"*  
 ---
 
 ## ⚡ Performance Power-Ups  
-**Added 15 turbo-indexes:**  
+**We added 15 blazing-fast indexes to improve query speed**  
 - ⏱️ **100x faster for future analysis** 
-- 🐢→⚡ **Transformed sluggish queries**  
+- **🐢→⚡ Transformed sluggish queries into speedy ones**  
 
-> *Without indexes, queries crawl like caramel spills!* 🐌
+> *Without indexes, queries crawl like caramel... 🐌
 ---
 
 ## 🎉 Cleaning Victory!  
-Through our data spa, we:  
-- 🪥 Scrubbed 10,000+ data points  
-- 🔗 Fixed 427 broken relationships  
-- 🚀 Added 15 speed-boosting indexes  
-- 🗑️ Evicted 56 time-traveling records  
+_After our data spa treatment, we_: 
+- 🪥 Scrubbed 10,000+  fields  
+- 🔗 Repaired 427 relationships 
+- 🚀 Added 15 performance-boosting indexes
+- 🗑️ Removed 56 time-traveling records
 
-Now our data is sparkling clean and ready to reveal candy industry secrets! 🍭✨  
+ **_Our data is now_**:
+✅ Consistent
+✅ Relational
+✅ Analysis-ready 
 
-> *"Good data is like fine chocolate—pure, well-processed, and utterly delicious!"*  
+ 
+> *"Clean data is like premium chocolate — pure, smooth, and satisfying!"** 
+
+---
+➡️ Next Steps: Analysis Phase!
+With our dataset cleaned and polished, we’re ready to:
+
+- 🍫 Uncover regional sales trends
+- 📈  Identify top-performing products
+- 🚚 Optimize delivery operations
+- 🎯 Evaluate sales target achievement
+- Let the sweet insights begin! 🍬✨
 
 ---
 
-
-## 🎉 Cleaning Victory!  
-**Through meticulous data care:**  
-- 🪥 **10,000+ fields polished**  
-- 🔗 **427 relationships mended**  
-- 🚀 **15 performance boosters added**  
-- 🍭 **56 time-traveling records evicted**  
-
-**Our data is now:**  
-✅ Consistent  
-✅ Relational  
-✅ Analysis-Ready  
-
-> *"Clean data is like premium chocolate - pure, smooth, and utterly satisfying!"*  
-
-## ➡️ Next Steps: Analysis Phase!  
-With our sparkling-clean dataset, we're ready to:  
-1. 🍫 Uncover regional sales trends  
-2. 📈 Identify top-performing products  
-3. 🚚 Optimize delivery networks  
-4. 🎯 Evaluate target achievement  
-
-**Let the candy insights flow!** 🍬✨  
-
----
-
+# **Phase:** 3 of 3  EDA & Advanced Analysis
 
 ## 🧠 SQL_Skills_Used
 
