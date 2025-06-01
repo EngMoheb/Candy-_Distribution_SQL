@@ -136,7 +136,7 @@ _**Here is a short description for each CSV file & its columns**_:
 
 ## 🔍 Overview
 
-During **Phase 2**, we cleaned and prepared five main tables:
+During **Phase 2**, we cleaned and prepared 5 core tables:
 
 - **`factories`**  
 - **`targets`**  
@@ -150,48 +150,48 @@ For each table, we:
 2. **✂️Trimmed Whitespace & Normalized text casing**  
 3. **📏 Checked ranges for numeric & date columns**  
 4. **🔍 Ensured uniqueness & removed duplicates**  
-5. **🔗 Enforced foreign key relationships**  
+5. **🔗 Enforced foreign key integrity relationships**  
 6. **⚡ Created indexes to boost query performance**
 
 ---
 
 ## ✨ Data Spa Treatment  
 ### 📝 Text Columns  
-- Tracked down missing values like hidden chocolate 🍫
-- Gave all text fields a trim (no more extra spaces!)
+- Identified and resolved missing values like hidden chocolate 🍫
+- Removed extra spaces from all text fields ✂️ 
 - Standardized capitalization — no more SHOUTING or whispering 🗣️
 
 ### 🔢 Numeric Columns  
-- Banished negative values🚫
-- ⚖️ Sanity checks: Confirmed coordinates were Earth-bound 🌍 and prices were ≥ $0
--🚩 Flagged suspicious: outliers that looked too big (or too small) to be real 
+- Eliminated negative values🚫
+- ⚖️ erified geographic coordinates: Confirmed coordinates were Earth-bound 🌍 and prices validity ≥ $0
+-🚩Flagged unusual values for review 
 
 ### 📅 Date Columns  
 - Removed time-traveling shipments (1930s orders? Not happening!)
-- Ensured ship dates came *after* orders (logical date checks)    
-- Flagged unrealistic entries (like candy deliveries from the year 3000 🚀) 
+- Ensured logical date sequences (ship after order)   
+- Flagged unrealistic dates (like candy deliveries from the year 3000 🚀) 
 
 ### ✔️ Boolean Columns  
--Replaced blanks with clear TRUE/FALSE values 
-- Verified candy categories made sense  
+- Replaced ambiguous entries with clear TRUE/FALSE values  
+- Verified categorical consistency
 
 ---
 
 ## 🧩 Table-by-Table Transformation  
 
 ### 🏭 Factories Table  
-- 🏷️ Standardized names ("sweet FACTORY" → "Sweet Factory")
-- 🌎 Confirmed all factory locations were geographically valid
+- 🏷️ Standardized naming conventions  ("sweet FACTORY" → "Sweet Factory")
+- 🌎 Validated geographic coordinates 
 - 🔑 Ensured each factory had a unique ID 
 
 ### 🎯 Targets Table  
-- 📊 Cleaned up division labels ("east COAST " → "East Coast")
+- 📊Cleaned division names 
 - 🎯 Validated targets to ensure all values were ≥ $0
-- 🚫 Removed duplicate entries — one division, one target
+- 🚫Eliminated duplicate divisions  — one division, one target
 
 ### 🍬 Products Table  
 - 🆔 **Standardized product IDs** ("choc-123" → "CHOC-123")
-- 💰 **💰 Flagged invalid pricing** (no negative costs!) 
+- 💰 **Flagged invalid pricing** (no negative costs!) 
 - 🤝 **Fixed foreign keys** — every product matched to a valid factory and division
 
 ### 📮 US Zips Table  
@@ -201,53 +201,53 @@ For each table, we:
 
 ### 💰 Sales Table  
 - 🕰️ **Removed 1930 shipments** that broke the space-time continuum
-- 📦 **Added delivery metrics** - Added delivery days + delivery categories  (Q1, Q2, Q3, Q4)  
-- 💸**Flagged financial oddities** (negative profits? Free candy?)  
+- 📦 **Added delivery  time metrics** -  delivery days + delivery categories  (Q1, Q2, Q3, Q4)  
+- 💸**Flagged financial inconsistencies** (negative profits? Free candy?)  
 - 🚢 **Cleaned up shipping modes** — removed invalid entries like "Same Day"
   
-  ## 🕰️ The Case of the 1930 Shipments  
+  ## 🕰️ Special Case: 1930 Shipments  
 **The Mystery:**Some orders claimed to ship _before_ they were placed!
-**Evidence:**  
-- 📅  56 records from the year 1930
+**Findings:**  
+- 📅  56 records dated to 1930  
 - 🕰️ Ship dates < order dates  
 **Resolution:**  
 - 🗑️ Deleted all impossible records
-- 🔍 Introduced delivery metrics to flag similar issues in the future
+- 🔍 Implemented delivery metrics to prevent similar issues in the future
 **Why?** Like stale candy, bad data spoils everything!  
 
 ---
 
 ## 🔗 Relationship Counseling (Foreign Keys)  
-We restored the connections between related tables:
+We resolved the connectivity between related tables:
 -  **🛟 Rescued 427 sales** linked to missing products
 - **📬 Repaired ZIP code gaps**
--  **🏷️ Ensured all products pointed to a valid division**
+-  **🏷️ Ensured all products matched to valid division**
 - **Reconnected orphaned data entries to their parent tables**.
 > *"Like matching candy to wrappers - every piece belongs somewhere!"*  
 ---
 
-## ⚡ Performance Power-Ups  
-**We added 15 blazing-fast indexes to improve query speed**  
-- ⏱️ **100x faster for future analysis** 
-- **🐢→⚡ Transformed sluggish queries into speedy ones**  
+## ⚡ Performance Optimization 
+**Added 15 critical indexes to improve query speed**  
+- **⏱️ Dramatically improved query speed for future deep analysis** 
+- **🐢→⚡Transformed slow operations**  
 
-> *Without indexes, queries crawl like caramel... 🐌
+> *Without indexes, queries crawl like caramel spills... 🐌
 ---
 
-## 🎉 Cleaning Victory!  
-_After our data spa treatment, we_: 
+## 🎉 Results
+_After our data spa care, we_: 
 - 🪥 Scrubbed 10,000+  fields  
 - 🔗 Repaired 427 relationships 
 - 🚀 Added 15 performance-boosting indexes
-- 🗑️ Removed 56 time-traveling records
+- 🗑️ 56 invalid records removed 
 
  **_Our data is now_**:
 ✅ Consistent
 ✅ Relational
-✅ Analysis-ready 
+✅ Analysis-Ready 
 
  
-> *"Clean data is like premium chocolate — pure, smooth, and satisfying!"** 
+> *"Clean data is like premium chocolate — pure, smooth, and deeply  satisfying!"** 
 
 ---
 ➡️ Next Steps: Analysis Phase!
@@ -256,8 +256,9 @@ With our dataset cleaned and polished, we’re ready to:
 - 🍫 Uncover regional sales trends
 - 📈  Identify top-performing products
 - 🚚 Optimize delivery operations
-- 🎯 Evaluate sales target achievement
-- Let the sweet insights begin! 🍬✨
+- 🎯 Evaluate sales target performance
+
+  **Let the sweet insights flow!** 🍬✨
 
 ---
 
