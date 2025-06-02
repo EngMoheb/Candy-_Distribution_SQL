@@ -70,8 +70,8 @@ _**Here is a short description for each CSV file & its columns**_:
 
  **General Analysis**
 
-1. Which products or categories generate the highest profits?  
-2. What are the top-selling products by quantity?  
+1. Which categories & products generate the highest profits?  
+2. What are the top-selling categories & products by quantity?  
 3. Which shipping routes are the most expensive?
 
 **Geographic & Optimization**
