@@ -86,8 +86,10 @@ _**Here is a short description for each CSV file & its columns**_:
 
 **Advanced Insights**
 
-1. Which customers rank in the top 5 spenders?  
+1. Who are the top 5 Customers Over Time?
 2. How has profit changed over time for each category?
+3. Which product lines should be moved to a different factory to optimize shipping routes?
+   
 
 
 ### 🔗 ERD Diagram
