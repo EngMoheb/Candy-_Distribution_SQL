@@ -294,8 +294,7 @@ ROUND(AVG(gross_profit), 2) AS avg_profit_per_Order
     FROM
         sales
 ``` 
-Explanation of the code:
-
+ 
 
 
 
@@ -336,8 +335,7 @@ ORDER BY
     ELSE 4
   END;
 ``` 
-Explanation of the code:
-
+ 
 
 
 
@@ -385,8 +383,7 @@ ORDER BY
 LIMIT 10;
 ```
 
-code explanation:
-
+ 
 
 
 the output 
@@ -429,8 +426,7 @@ ORDER BY
 LIMIT 9;
 ```
 
-code explanation:
-
+ 
 
 
 the output 
@@ -511,8 +507,7 @@ ORDER BY
 LIMIT 10;
 ```
 
-code explanation:
-
+ 
 
 
 the output 
@@ -528,10 +523,12 @@ DDD" Data_Driven_Decision"
 **Geographic & Optimization**
 
 1. Which customer–factory pairs are least efficient (long distance + low margin)?
+
+   explain miles_per_dollar_profit
   
 ```sql
 WITH
-  -- 1. Map product → factory coords
+  -- 1. Associate each product with its factory’s coordinates
   factory_loc AS (
     SELECT
       p.product_id,
@@ -543,7 +540,7 @@ WITH
       ON p.factory_name = f.factory_name
   ),
 
-  -- 2. Map ZIP → customer coords
+  -- 2. Associate each ZIP code with customer coordinates and location
   customer_loc AS (
     SELECT
       zip               AS customer_zip,
@@ -554,7 +551,7 @@ WITH
     FROM us_zips
   ),
 
-  -- 3. Build the geo‑coded sales stream
+  -- 3. Build a geo-coded sales stream, computing distance from factory to customer
   sales_geo AS (
     SELECT
       s.row_id,
@@ -563,6 +560,7 @@ WITH
       cl.customer_city,
       cl.customer_state,
       s.gross_profit,
+      -- Haversine formula to compute miles between two lat/long points
       3959 * acos(
         cos(radians(fl.factory_lat))
         * cos(radians(cl.cust_lat))
@@ -577,32 +575,33 @@ WITH
       ON s.postal_code = cl.customer_zip
   )
 
+-- Final aggregation: for each factory–ZIP pair with ≥5 orders
 SELECT
   factory_name,
   customer_zip,
-   ROUND(
+  -- Ratio of average distance to average profit (miles per $1 profit)
+  ROUND(
     AVG(distance_miles)::numeric
     / NULLIF(AVG(gross_profit),0)::numeric
-  , 3)      AS miles_per_dollar_profit,
-  ROUND(AVG(distance_miles)::numeric, 1)    AS avg_distance_miles,
-  ROUND(AVG(gross_profit)::numeric, 2)       AS avg_profit_per_order,                                 
+  , 3) AS miles_per_dollar_profit,   -- KPI Measure
+  ROUND(AVG(gross_profit)::numeric, 2) AS avg_profit_per_order,
+  ROUND(AVG(distance_miles)::numeric, 1)  AS avg_distance_miles,
   customer_city,
   customer_state,
-  COUNT(*)                                   AS num_orders
+  COUNT(*) AS num_orders
 FROM sales_geo
 GROUP BY
-  factory_name,
+   factory_name,
   customer_zip,
   customer_city,
   customer_state
 HAVING COUNT(*) >= 5
 ORDER BY
   miles_per_dollar_profit DESC
-LIMIT 10;
+LIMIT 22;
 ```
 
-code explanation:
-
+ 
 
 
 the output 
@@ -614,28 +613,35 @@ DDD" Data_Driven_Decision"
 2. Are there specific regions with higher return on sales?
 
 ```sql
--- Return‑on‑Sales by Region
+-- Return-on-Sales (ROS) by Region
 SELECT
-  s.region                            ,
-   ROUND(
-    SUM(s.gross_profit)::numeric
-    / NULLIF(SUM(s.total_sales), 0)::numeric
-  , 4)                                  AS ros,
-  SUM(s.total_sales)                   AS total_sales,
-  SUM(s.gross_profit)                  AS total_profit,
-  SUM(s.units)                         AS total_units_sold
-FROM sales s
-GROUP BY s.region
-HAVING SUM(s.total_sales) > 0          -- avoid division by zero
-  AND SUM(s.units) >= 100              -- optional: filter low‑volume states
+  region,
+  
+  -- 1. Compute ROS = total gross profit ÷ total sales, rounded to 4 decimals
+  ROUND(
+    SUM(gross_profit)::numeric
+    / NULLIF(SUM(total_sales), 0)::numeric
+  , 4) AS ros,
+  
+  -- 2. Include total sales, profit, and volume for context
+  SUM(total_sales)  AS total_sales,
+  SUM(gross_profit) AS total_profit,
+  SUM(units)        AS total_units_sold
+
+FROM sales 
+
+-- 3. Group by region to aggregate metrics region-wide
+GROUP BY region
+
+-- 4. Filter out any region with zero sales or very low volume
+HAVING
+     SUM(total_sales) > 0
+ AND SUM(units)       >= 100
+
+-- 5. Order by highest ROS and limit to top 10 regions
 ORDER BY ros DESC
 LIMIT 10;
 ```
-
-code explanation:
-
-
-
 the output 
 
 
@@ -645,15 +651,19 @@ DDD" Data_Driven_Decision"
 **Time-Based Trends**
 
 1. How do monthly/quarterly sales trends look?
+
+   Your sales table simply has no orders logged after July 2024
+   accuracy check , top months = top quarter
 ```sql
- -- A. Monthly Sales & Profit Trends
- 
+ --- A. Monthly Sales & Profit Trends (last 24 months)
 WITH monthly AS (
   SELECT
-    DATE_TRUNC('month', order_date)::date  AS period_start,
-    SUM(total_sales)                       AS sales,
-    SUM(gross_profit)                      AS profit,
-    SUM(units)                             AS units_sold
+    -- A. Determine the first day of each month for grouping
+    DATE_TRUNC('month', order_date)::date AS period_start,
+    -- B. Sum up the key metrics for that month
+    SUM(total_sales)   AS sales,
+    SUM(gross_profit)  AS profit,
+    SUM(units)         AS units_sold
   FROM sales
   GROUP BY DATE_TRUNC('month', order_date)
   ORDER BY period_start
@@ -664,17 +674,19 @@ SELECT
   profit,
   units_sold
 FROM monthly
-WHERE period_start >= DATE_TRUNC('month', NOW())::date - INTERVAL '24 months';
+-- 3. Filter to most recent 24 months
+WHERE period_start >= (DATE_TRUNC('month', NOW())::date - INTERVAL '24 months');
 
 
--- B. Quarterly Sales & Profit Trends
--- Quarterly Sales & Profit Trends (last 8 quarters = last 24 months)
+-- B. Quarterly Sales & Profit Trends (last 8 quarters = last 2 years =last 24 months)
 WITH quarterly AS (
   SELECT
+    -- 1. Truncate order_date to first day of quarter
     DATE_TRUNC('quarter', order_date)::date AS period_start,
-    SUM(total_sales)                       AS sales,
-    SUM(gross_profit)                      AS profit,
-    SUM(units)                             AS units_sold
+    -- 2. Aggregate core metrics
+    SUM(total_sales)   AS sales,
+    SUM(gross_profit)  AS profit,
+    SUM(units)         AS units_sold
   FROM sales
   GROUP BY DATE_TRUNC('quarter', order_date)
   ORDER BY period_start
@@ -685,13 +697,9 @@ SELECT
   profit,
   units_sold
 FROM quarterly
-WHERE period_start >= DATE_TRUNC('quarter', NOW())::date
-                        - INTERVAL '24 months';
+-- 3. Filter to most recent 8 quarters
+WHERE period_start >= (DATE_TRUNC('quarter', NOW())::date - INTERVAL '24 months');
 ```
-
-code explanation:
-
-
 
 the output 
 
@@ -704,16 +712,23 @@ DDD" Data_Driven_Decision"
 2. Are there specific weekdays or weekends with higher volume or profit?
 
 ```sql
+-- Day-of-Week & Weekend vs. Weekday Metrics
 WITH day_metrics AS (
   SELECT
-    TO_CHAR(order_date, 'FMDay')          AS day_name,
+    -- 1. Name of the weekday (e.g. Monday, Tuesday)
+    TO_CHAR(order_date, 'FMDay') AS day_name,
+
+    -- 2. Classify as “Weekend” if Saturday '6'/Sunday'0', otherwise “Weekday”
     CASE
       WHEN EXTRACT(DOW FROM order_date) IN (0,6) THEN 'Weekend'
       ELSE 'Weekday'
-    END                                     AS day_type,
-    COUNT(*)                               AS num_orders,
-    SUM(total_sales)                       AS total_sales,
-    SUM(gross_profit)                      AS total_profit
+    END AS day_type,
+
+    -- 3. Aggregate counts and dollar metrics
+    COUNT(*)           AS num_orders,
+    SUM(total_sales)   AS total_sales,
+    SUM(gross_profit)  AS total_profit
+
   FROM sales
   GROUP BY
     TO_CHAR(order_date, 'FMDay'),
@@ -722,17 +737,24 @@ WITH day_metrics AS (
       ELSE 'Weekday'
     END
 )
+
 SELECT
   day_name,
   day_type,
   num_orders,
   total_sales,
   total_profit,
-  ROUND(100.0 * num_orders / SUM(num_orders) OVER (), 1)    AS pct_of_orders,
+
+  -- 4. Percentage of total orders by day
+  ROUND(100.0 * num_orders / SUM(num_orders)    OVER (), 1) AS pct_of_orders,
+
+  -- 5. Percentage of total profit by day
   ROUND(100.0 * total_profit / SUM(total_profit) OVER (), 1) AS pct_of_profit
+
 FROM day_metrics
+
+-- 6. Order rows Monday → Sunday
 ORDER BY
-  -- Ensure Monday→Sunday order
   CASE day_name
     WHEN 'Monday'    THEN 1
     WHEN 'Tuesday'   THEN 2
