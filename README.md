@@ -68,7 +68,7 @@ _**Here is a short description for each CSV file & its columns**_:
 - 🧹 Dropped unused columns from `us_zips` to keep only zip, zcta, state, county, population, density, timezone.   
 - ✅ **Clarified** the business questions we’ll answer by analysing our dataset:
 
- **General Analysis**
+ **General Questions**
 
 1. Which categories & products generate the highest profits?  
 2. What are the top-selling categories & products by quantity?  
@@ -84,7 +84,7 @@ _**Here is a short description for each CSV file & its columns**_:
 1. How do monthly/quarterly sales trends look?  
 2. Are there specific weekdays or weekends with higher volume or profit?
 
-**Advanced Insights**
+**Advanced Questions**
 
 1. Who are the top 5 Customers Over Time?
 2. How has profit changed over time for each category?
@@ -279,4 +279,663 @@ With our dataset cleaned and polished, we’re ready to:
 - **Query Optimization** with indexes and EXPLAIN  
 
 ---
+
+before we dive into the bussiness questions, we have made something called _Big_Picture_Analysis _that is about Simple Aggregate  Profit Distribution that show us how our dataset looklike before the deep analysis
+
+```sql
+--Simple Aggregate & basic summary statistics
+
+SELECT
+ count(*)  AS num_orders,
+ Sum(total_sales) AS total_sales,
+ sum(gross_profit) AS total_profit,
+ROUND(AVG(total_sales), 2) AS avg_sales_per_Order,
+ROUND(AVG(gross_profit), 2) AS avg_profit_per_Order
+    FROM
+        sales
+``` 
+Explanation of the code:
+
+
+
+
+here is the result:
+
+
+
+
+
+
+```sql
+--Bucketed Profit Distribution
+
+WITH profit_buckets AS (
+  SELECT
+    gross_profit,
+    CASE
+      WHEN gross_profit < 50   THEN '$0–$50'
+      WHEN gross_profit < 100  THEN '$50–$100'
+      WHEN gross_profit < 200  THEN '$100–$200'
+      ELSE '$200+' 
+    END AS bucket_label
+  FROM sales
+)
+SELECT
+  bucket_label,
+  COUNT(*)                AS num_orders,
+  SUM(gross_profit)       AS bucket_total_profit,
+  ROUND(100.0 * COUNT(*) / SUM(COUNT(*)) OVER (), 2) AS pct_of_orders
+FROM profit_buckets
+GROUP BY bucket_label
+ORDER BY
+  CASE 
+    WHEN bucket_label = '$0–$50'   THEN 1
+    WHEN bucket_label = '$50–$100' THEN 2
+    WHEN bucket_label = '$100–200' THEN 3
+
+    ELSE 4
+  END;
+``` 
+Explanation of the code:
+
+
+
+
+here is the result:
+
+
+
+the insights we take from this analysis
+
+
+ **General Questionss**
+
+1. Which categories & products generate the highest profits?
+
+```sql
+-- (Category)- Level Profit Query
+
+SELECT
+  division,
+  SUM(total_sales)   AS total_sales,
+  SUM(gross_profit)  AS total_profit
+FROM 
+      sales 
+GROUP BY 
+      division
+ORDER BY 
+    total_profit DESC;
+ 
+--Product‐Level Profit Query
+
+SELECT
+  p.product_id,
+  p.product_name,
+  SUM(s.total_sales)  AS total_sales,
+  SUM(s.gross_profit) AS total_profit
+ FROM 
+      sales s
+JOIN 
+  products p
+ON s.product_id = p.product_id
+GROUP BY
+   p.product_id, p.product_name
+ORDER BY 
+  total_profit DESC
+LIMIT 10;
+```
+
+code explanation:
+
+
+
+the output 
+
+
+
+DDD" Data_Driven_Decision"
+
+Checking the result : same categories = same products
+
+   
+2. What are the top-selling categories & products by quantity?
+```sql
+-- Top_Selling_Categories_by_Quantity
+SELECT
+  division,
+  SUM(units) AS total_units_sold
+FROM 
+  sales 
+GROUP BY
+   division
+ORDER BY
+   total_units_sold DESC;
+
+
+-- Top_Selling_Products_by_Quantity
+
+SELECT
+  p.product_id,
+  p.product_name,
+  SUM(s.units) AS total_units_sold
+ FROM 
+  sales s
+JOIN products p 
+ON s.product_id = p.product_id
+GROUP BY 
+    p.product_name, p.product_id
+ORDER BY
+     total_units_sold DESC
+LIMIT 9;
+```
+
+code explanation:
+
+
+
+the output 
+
+Checking the result : same categories = same products
+
+DDD" Data_Driven_Decision"
+
+
+   
+3. Which shipping routes are the most expensive?
+
+question explained : what most expensive mean?
+
+code:
+   
+```sql
+ -- 1. Map every product_id to its factory
+WITH
+  factory_loc AS (
+    SELECT
+      p.product_id,
+      f.factory_name
+    FROM products p
+    JOIN factories f
+      ON p.factory_name = f.factory_name
+  ),
+ 
+  -- 2. Map every ZIP to its city/state & postal code
+  customer_loc AS (
+    SELECT
+     u.zip               AS customer_zip,
+     u.city              AS customer_city,
+     u.state_name        AS customer_state,
+     s.postal_code AS zip
+    FROM
+       us_zips u
+    JOIN sales s
+      ON u.zip = s.postal_code
+  ),
+ 
+
+  -- 3. Build a sales view with origin & destination 
+  sales_routes AS (
+    SELECT
+      s.row_id,
+      fl.factory_name          AS factory,
+      cl.zip                 AS customer_zip,
+      cl.city                 AS customer_city,
+      cl.state_name             AS customer_state,
+      s.cost                   AS shipping_cost
+    FROM sales s
+    JOIN products p
+      ON s.product_id = p.product_id
+    JOIN factories fl
+      on p.factory_name = fl.factory_name
+    JOIN us_zips cl
+      ON s.postal_code = cl.zip
+  )
+
+SELECT
+  factory,
+  customer_zip,  
+    SUM(shipping_cost)     AS total_shipping_cost,
+  COUNT(*)          AS num_orders,
+  ROUND(AVG(shipping_cost), 2) AS avg_cost_per_order,
+   customer_state,
+  customer_city
+    
+FROM sales_routes
+GROUP BY
+  factory,
+  customer_zip,
+  customer_city,
+  customer_state
+ORDER BY
+  total_shipping_cost DESC
+LIMIT 10;
+```
+
+code explanation:
+
+
+
+the output 
+
+
+
+DDD" Data_Driven_Decision"
+
+
+
+
+
+**Geographic & Optimization**
+
+1. Which customer–factory pairs are least efficient (long distance + low margin)?
+  
+```sql
+WITH
+  -- 1. Map product → factory coords
+  factory_loc AS (
+    SELECT
+      p.product_id,
+      f.factory_name,
+      f.latitude  AS factory_lat,
+      f.longitude AS factory_lng
+    FROM products p
+    JOIN factories f
+      ON p.factory_name = f.factory_name
+  ),
+
+  -- 2. Map ZIP → customer coords
+  customer_loc AS (
+    SELECT
+      zip               AS customer_zip,
+      lat               AS cust_lat,
+      lng               AS cust_lng,
+      city              AS customer_city,
+      state_name        AS customer_state
+    FROM us_zips
+  ),
+
+  -- 3. Build the geo‑coded sales stream
+  sales_geo AS (
+    SELECT
+      s.row_id,
+      fl.factory_name,
+      cl.customer_zip,
+      cl.customer_city,
+      cl.customer_state,
+      s.gross_profit,
+      3959 * acos(
+        cos(radians(fl.factory_lat))
+        * cos(radians(cl.cust_lat))
+        * cos(radians(cl.cust_lng) - radians(fl.factory_lng))
+        + sin(radians(fl.factory_lat))
+        * sin(radians(cl.cust_lat))
+      ) AS distance_miles
+    FROM sales s
+    JOIN factory_loc fl
+      ON s.product_id = fl.product_id
+    JOIN customer_loc cl
+      ON s.postal_code = cl.customer_zip
+  )
+
+SELECT
+  factory_name,
+  customer_zip,
+   ROUND(
+    AVG(distance_miles)::numeric
+    / NULLIF(AVG(gross_profit),0)::numeric
+  , 3)      AS miles_per_dollar_profit,
+  ROUND(AVG(distance_miles)::numeric, 1)    AS avg_distance_miles,
+  ROUND(AVG(gross_profit)::numeric, 2)       AS avg_profit_per_order,                                 
+  customer_city,
+  customer_state,
+  COUNT(*)                                   AS num_orders
+FROM sales_geo
+GROUP BY
+  factory_name,
+  customer_zip,
+  customer_city,
+  customer_state
+HAVING COUNT(*) >= 5
+ORDER BY
+  miles_per_dollar_profit DESC
+LIMIT 10;
+```
+
+code explanation:
+
+
+
+the output 
+
+
+
+DDD" Data_Driven_Decision"
+  
+2. Are there specific regions with higher return on sales?
+
+```sql
+-- Return‑on‑Sales by Region
+SELECT
+  s.region                            ,
+   ROUND(
+    SUM(s.gross_profit)::numeric
+    / NULLIF(SUM(s.total_sales), 0)::numeric
+  , 4)                                  AS ros,
+  SUM(s.total_sales)                   AS total_sales,
+  SUM(s.gross_profit)                  AS total_profit,
+  SUM(s.units)                         AS total_units_sold
+FROM sales s
+GROUP BY s.region
+HAVING SUM(s.total_sales) > 0          -- avoid division by zero
+  AND SUM(s.units) >= 100              -- optional: filter low‑volume states
+ORDER BY ros DESC
+LIMIT 10;
+```
+
+code explanation:
+
+
+
+the output 
+
+
+
+DDD" Data_Driven_Decision"
+
+**Time-Based Trends**
+
+1. How do monthly/quarterly sales trends look?
+```sql
+ -- A. Monthly Sales & Profit Trends
+ 
+WITH monthly AS (
+  SELECT
+    DATE_TRUNC('month', order_date)::date  AS period_start,
+    SUM(total_sales)                       AS sales,
+    SUM(gross_profit)                      AS profit,
+    SUM(units)                             AS units_sold
+  FROM sales
+  GROUP BY DATE_TRUNC('month', order_date)
+  ORDER BY period_start
+)
+SELECT
+  period_start,
+  sales,
+  profit,
+  units_sold
+FROM monthly
+WHERE period_start >= DATE_TRUNC('month', NOW())::date - INTERVAL '24 months';
+
+
+-- B. Quarterly Sales & Profit Trends
+-- Quarterly Sales & Profit Trends (last 8 quarters = last 24 months)
+WITH quarterly AS (
+  SELECT
+    DATE_TRUNC('quarter', order_date)::date AS period_start,
+    SUM(total_sales)                       AS sales,
+    SUM(gross_profit)                      AS profit,
+    SUM(units)                             AS units_sold
+  FROM sales
+  GROUP BY DATE_TRUNC('quarter', order_date)
+  ORDER BY period_start
+)
+SELECT
+  period_start,
+  sales,
+  profit,
+  units_sold
+FROM quarterly
+WHERE period_start >= DATE_TRUNC('quarter', NOW())::date
+                        - INTERVAL '24 months';
+```
+
+code explanation:
+
+
+
+the output 
+
+
+
+DDD" Data_Driven_Decision"
+
+
+   
+2. Are there specific weekdays or weekends with higher volume or profit?
+
+```sql
+WITH day_metrics AS (
+  SELECT
+    TO_CHAR(order_date, 'FMDay')          AS day_name,
+    CASE
+      WHEN EXTRACT(DOW FROM order_date) IN (0,6) THEN 'Weekend'
+      ELSE 'Weekday'
+    END                                     AS day_type,
+    COUNT(*)                               AS num_orders,
+    SUM(total_sales)                       AS total_sales,
+    SUM(gross_profit)                      AS total_profit
+  FROM sales
+  GROUP BY
+    TO_CHAR(order_date, 'FMDay'),
+    CASE
+      WHEN EXTRACT(DOW FROM order_date) IN (0,6) THEN 'Weekend'
+      ELSE 'Weekday'
+    END
+)
+SELECT
+  day_name,
+  day_type,
+  num_orders,
+  total_sales,
+  total_profit,
+  ROUND(100.0 * num_orders / SUM(num_orders) OVER (), 1)    AS pct_of_orders,
+  ROUND(100.0 * total_profit / SUM(total_profit) OVER (), 1) AS pct_of_profit
+FROM day_metrics
+ORDER BY
+  -- Ensure Monday→Sunday order
+  CASE day_name
+    WHEN 'Monday'    THEN 1
+    WHEN 'Tuesday'   THEN 2
+    WHEN 'Wednesday' THEN 3
+    WHEN 'Thursday'  THEN 4
+    WHEN 'Friday'    THEN 5
+    WHEN 'Saturday'  THEN 6
+    WHEN 'Sunday'    THEN 7
+  END;
+```
+
+code explanation:
+
+
+
+the output 
+
+
+
+DDD" Data_Driven_Decision"
+
+**Advanced Questions**
+
+1. Who are the top 5 Customers Over Time?
+```sql
+WITH customer_totals AS (
+  SELECT
+    customer_id,
+    COUNT(*)          AS num_orders,
+    ship_mode,
+    SUM(total_sales)   AS total_sales,
+    SUM(gross_profit)  AS total_profit,
+    SUM(units)         AS total_units
+  FROM sales
+  GROUP BY customer_id,
+           ship_mode
+),
+ranked_customers AS (
+  SELECT
+    customer_id,
+    ship_mode,
+    num_orders,
+    total_sales,
+    total_profit,
+    total_units,
+    ROW_NUMBER() OVER (
+      ORDER BY total_sales DESC
+    ) AS customer_rank
+  FROM customer_totals
+)
+SELECT
+  customer_id,
+  ship_mode,
+  customer_rank,
+  num_orders,
+  total_sales,
+  total_profit,
+  total_units
+FROM ranked_customers
+ORDER BY customer_rank
+limit 5;
+```
+
+code explanation:
+
+
+
+the output 
+
+
+
+DDD" Data_Driven_Decision"
+
+   
+2. How has profit changed over time for each category?
+
+ ```sql
+ WITH division_yearly AS (
+  SELECT
+    EXTRACT(YEAR FROM s.order_date)::int AS order_year,
+    p.division,
+    SUM(s.gross_profit)                  AS total_profit
+  FROM sales s
+  JOIN products p
+    ON s.product_id = p.product_id
+  GROUP BY
+    EXTRACT(YEAR FROM s.order_date),
+    p.division
+),
+division_trends AS (
+  SELECT
+    division,
+    order_year,
+    total_profit,
+    LAG(total_profit) OVER (
+      PARTITION BY division
+      ORDER BY order_year
+    ) AS prev_year_profit
+  FROM division_yearly
+)
+SELECT
+  division,
+  order_year,
+  total_profit,
+  prev_year_profit,
+  (total_profit - prev_year_profit)         AS change_in_profit,
+  ROUND(
+    (total_profit - prev_year_profit)::numeric
+    / NULLIF(prev_year_profit, 0)::numeric
+  , 4)                                       AS pct_change
+FROM division_trends
+WHERE prev_year_profit IS NOT NULL
+ORDER BY
+  division,
+  order_year;
+```
+
+code explanation:
+
+
+
+the output 
+
+
+
+DDD" Data_Driven_Decision"
+
+
+
+3. Which product lines should be moved to a different factory to optimize shipping routes?
+
+```sql
+-- 1. Attach each sale to its product’s division, factory, and customer coordinates
+WITH sale_geo AS (
+  SELECT
+    p.division,                     -- product category/division
+    f.factory_name,                 -- origin factory
+    f.latitude  AS fac_lat,         -- factory latitude
+    f.longitude AS fac_lng,         -- factory longitude
+    u.lat       AS cust_lat,        -- customer ZIP latitude
+    u.lng       AS cust_lng         -- customer ZIP longitude
+  FROM sales s
+  JOIN products p
+    ON s.product_id = p.product_id  -- link sale to product
+  JOIN factories f
+    ON p.factory_name = f.factory_name  -- link product to factory
+  JOIN us_zips u
+    ON s.postal_code = u.zip       -- link sale to customer ZIP
+),
+-- 2. Compute average shipping distance (Haversine) per division & factory
+div_fac_dist AS (
+  SELECT
+    division,
+    factory_name,
+    AVG(
+      3959 * acos(                  -- Earth radius in miles × central angle
+        cos(radians(fac_lat))
+        * cos(radians(cust_lat))
+        * cos(radians(cust_lng) - radians(fac_lng))
+        + sin(radians(fac_lat))
+        * sin(radians(cust_lat))
+      )
+    ) AS avg_distance_miles        -- average miles shipped per order
+  FROM sale_geo
+  GROUP BY division, factory_name  -- one row per division–factory
+),
+-- 3. Rank factories by proximity for each division
+ranked AS (
+  SELECT
+    division,
+    factory_name,
+    avg_distance_miles,
+    ROW_NUMBER() OVER (
+      PARTITION BY division       -- restart rank for each division
+      ORDER BY avg_distance_miles -- closest = rank 1
+    ) AS rank_by_distance
+  FROM div_fac_dist
+)
+-- 4. Compare each division’s current factory to the optimal (rank 1) factory
+SELECT
+  d1.division,
+  d1.factory_name                        AS current_factory,
+  ROUND(d1.avg_distance_miles::numeric, 1) AS current_avg_miles,
+  d2.factory_name                        AS optimal_factory,
+  ROUND(d2.avg_distance_miles::numeric, 1) AS optimal_avg_miles,
+  ROUND(
+    (d1.avg_distance_miles - d2.avg_distance_miles)::numeric
+  ,1)                                     AS miles_saved
+FROM ranked d1
+JOIN ranked d2
+  ON d1.division = d2.division
+ AND d2.rank_by_distance = 1               -- pick the closest factory
+WHERE d1.rank_by_distance > 1              -- exclude the optimal itself
+ORDER BY miles_saved DESC;                 -- greatest potential savings first
+```
+
+code explanation:
+
+
+
+the output 
+
+
+
+DDD" Data_Driven_Decision"
 
