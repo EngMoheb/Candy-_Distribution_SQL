@@ -272,10 +272,7 @@ With our dataset cleaned and polished, we’re ready to:
 - **CASE** statements for conditional logic  
 - **Common Table Expressions (CTEs)** for modular queries  
 - **Window Functions** for running totals and rankings  
-- **Data Cleaning:** null handling, formatting  
-- **Pivoting** via CASE for cross-tabs  
-- **Date/Time Functions** for extracting year/quarter/week  
-- **Views** to encapsulate reusable queries  
+- **Date/Time Functions** for extracting ,months & quarters  
 - **Query Optimization** with indexes and EXPLAIN  
 
 ---
@@ -296,7 +293,7 @@ ROUND(AVG(gross_profit), 2) AS avg_profit_per_Order
 ```
 here is the result:
 
-
+![Analytics Dashboard](Assets/big_picture.png)
 
 
 
