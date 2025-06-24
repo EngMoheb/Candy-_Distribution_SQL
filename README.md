@@ -1,6 +1,9 @@
 # 🏭Candy-Distribution_SQL🍭
 ![ Cover](Assets/Profile.jpg)
 
+
+Table of Contents 📑
+
 ## 📌 About the Project
 This project explores a real-world dataset about the US candy industry. We uploaded the CSV files into VS Code, created a PostgreSQL database, and established a connection between them. Also we build a clean database foundation and prepare the data to answer key business questions about candy sales, factory efficiency, and regional trends.
 
@@ -70,24 +73,24 @@ _**Here is a short description for each CSV file & its columns**_:
 
  **General Questions**
 
-1. Which categories & products generate the highest profits?  
-2. What are the top-selling categories & products by quantity?  
+1. Which product divisions & individual SKUs drive our profits?
+2.Which product divisions and SKUs move the most units? 
 3. Which shipping routes are the most expensive?
 
 **Geographic & Optimization**
 
 1. Which customer–factory pairs are least efficient (long distance + low margin)?  
-2. Are there specific states/regions with higher return on sales?
+2. Which geographic regions deliver the highest return on sales (ROS)?
 
 **Time-Based Trends**
 
 1. How do monthly/quarterly sales trends look?  
-2. Are there specific weekdays or weekends with higher volume or profit?
+2. Which weekdays vs weekends drive the most orders and profit?
 
 **Advanced Questions**
 
-1. Who are the top 5 Customers Over Time?
-2. How has profit changed over time for each category?
+1.Who are our highest–lifetime–value customers, and how do they ship?
+2.How has gross profit for each product division evolved year-over-year?
 3. Which product lines should be moved to a different factory to optimize shipping routes?
    
 
@@ -277,8 +280,16 @@ With our dataset cleaned and polished, we’re ready to:
 
 ---
 
-before we dive into the bussiness questions, we have made something called _Big_Picture_Analysis _that is about Simple Aggregate  Profit Distribution that show us how our dataset looklike before the deep analysis
+Before diving into the analysis, we first ask: “What is our overall sales and profit profile, and how is profit distributed across order sizes?”
 
+ 
+Importance:
+
+✅ Benchmarking: Sets the stage for all deeper analyses by revealing whether we’re operating on thin margins or enjoying healthy per‐order returns.
+
+✅ Risk Identification: Exposes reliance on low‐profit orders—critical for assessing whether fulfillment and shipping costs might be eating into our bottom line.
+
+✅ Strategic Focus: Highlights whether we need to prioritize volume growth, value extraction (upsells), or cost‐control measures before tackling more granular business questions.
 ```sql
 --Simple Aggregate & basic summary statistics
 
@@ -291,12 +302,9 @@ ROUND(AVG(gross_profit), 2) AS avg_profit_per_Order
     FROM
         sales
 ```
-here is the result:
+Here is the result:
 
-![Analytics Dashboard](Assets/big_picture.png)
-
-
-
+![Analytics Dashboard](Assets/1.png)
 
 ```sql
 --Bucketed Profit Distribution
@@ -327,21 +335,51 @@ ORDER BY
 
     ELSE 4
   END;
-``` 
- 
+```
+Output
+![Analytics Dashboard](Assets/big_picture_2.png)
+
+The insights we take from this analysis:
+
+💡 Key Insights
+High Volume of Low-Profit Orders
+
+99.7 % of orders generate <$50 profit, yet these contribute ~97.5 % of total transactions.
+
+Thin Margins per Order
+
+Average profit per order is only $9.57, while average sales are $14.29—indicating low markup or small order sizes.
+
+Few High-Profit Outliers
+
+Orders above $50 profit are vanishingly rare (<0.5 %), suggesting little upsell or bulk ordering.
 
 
 
-here is the result:
+🚀 Data-Driven decisions
+Boost Average Order Value
 
+Introduce “bundle deals” or tiered free-shipping thresholds (e.g., free ship over $30) to push more orders into higher-profit buckets.
 
+Targeted Promotions
 
-the insights we take from this analysis
+Identify frequent low-profit customers and offer “add-on” suggestions at checkout (e.g., “Add one more item for $5 off”).
 
+Loyalty & Subscription Programs
 
- **General Questionss**
+Encourage repeat purchases with subscription bundles that guarantee higher per-order profit and predictable revenue.
 
-1. Which categories & products generate the highest profits?
+Cost Analytics
+
+Model the true cost (shipping + handling) versus the $9.57 average profit to ensure each order remains profitable. Flag any “break-even” ZIPs.
+
+Upsell High-Margin SKUs
+
+Analyze product mix to promote items with >$50 profit potential; feature these in emails, on-site banners, and during checkout.
+
+ **General Questions**
+
+1.“Which product divisions & individual SKUs drive our profits?”
 
 ```sql
 -- (Category)- Level Profit Query
@@ -356,7 +394,11 @@ GROUP BY
       division
 ORDER BY 
     total_profit DESC;
- 
+```
+
+![Analytics Dashboard](Assets/category_profit.png)
+
+```sql 
 --Product‐Level Profit Query
 
 SELECT
@@ -375,20 +417,61 @@ ORDER BY
   total_profit DESC
 LIMIT 10;
 ```
-
- 
-
-
-the output 
+![Analytics Dashboard](Assets/product_profit.png)
 
 
+💡 Key Insights
+Dominant Chocolate Division 🚀
 
-DDD" Data_Driven_Decision"
+Nearly all profit stems from classic Wonka Bar variants.
 
-Checking the result : same categories = same products
+Concentration Risk ⚠️
 
+Over-reliance on five SKUs could expose us to supply or pricing shocks.
+
+Underleveraged Niches 🌱
+
+“Other” category items like Lickable Wallpaper show potential for targeted marketing.
+
+Weak Sugar Performance 📉
+
+Sugar division’s low volume and profit suggest either low demand or margin pressure.
+
+ 🚀 Data Driven Decisions
+Double-Down on Wonka Bars
+
+Launch limited-edition flavors and bundle packs to capitalize on top sellers.
+
+Mitigate Concentration Risk
+
+Develop or acquire new high-margin chocolate variants to diversify the hero lineup.
+
+Boost “Other” Niche SKUs
+
+Feature quirky items in social campaigns (e.g. “Taste the Wall!”) to grow impulse buys.
+
+Revitalize Sugar Division
+
+Evaluate pricing, packaging, or formulation changes for Gobstopper & Toffee, or consider sunsetting low-performers.
+
+Inventory & Production Alignment
+
+Prioritize factory capacity and raw-material procurement for top-profit SKUs to avoid stockouts.
    
-2. What are the top-selling categories & products by quantity?
+2. Which product divisions and SKUs move the most units?
+
+   ❓ Business Question: Meaning & Importance
+ 
+Meaning: Reveals where customer demand is strongest in terms of quantity, not just revenue or profit.
+
+Importance:
+
+📦 Inventory Planning: Ensures high-turnover items are always in stock.
+
+🚚 Logistics & Fulfillment: Prioritizes fast movers in warehouse layout and pick-pack workflows.
+
+🎯 Marketing Focus: Guides promotional efforts toward popular products to maximize volume-driven growth
+
 ```sql
 -- Top_Selling_Categories_by_Quantity
 SELECT
@@ -400,8 +483,10 @@ GROUP BY
    division
 ORDER BY
    total_units_sold DESC;
+```
+![Analytics Dashboard](Assets/category_quantity.png)
 
-
+```sql
 -- Top_Selling_Products_by_Quantity
 
 SELECT
@@ -418,23 +503,56 @@ ORDER BY
      total_units_sold DESC
 LIMIT 9;
 ```
+![Analytics Dashboard](Assets/product_quantity.png)
 
- 
+💡 Key Insights
+Volume Concentration 🍫
 
+Top 5 SKUs are all Wonka Bars, each selling >5,000 units  sales—critical to keep fully stocked.
 
-the output 
+Secondary Niches 🌟
 
-Checking the result : same categories = same products
+“Other” novelties (Gum, Kazookles, Wallpaper) have loyal but small followings.
 
-DDD" Data_Driven_Decision"
+Underperforming Sugar 📉
 
+Sugar division’s low unit counts indicate either market gaps or promotional neglect.
 
+Data Driven Decisions
+
+Optimize Inventory for Wonka Bars
+
+Increase safety stock levels and forecast demand spikes (holidays, promotions).
+
+Feature Novelties Strategically
+
+Bundle Gum or Kazookles with top-selling bars to boost cross-sell and upsell volume.
+
+Revitalize Sugar Lineup
+
+Run targeted promotions for Sugar SKUs (e.g., “Buy 2 Sweetarts, get 1 free”) to test demand.
+
+Warehouse Prioritization
+
+Place fast movers (top 5 bars) in the most accessible picking zones to reduce order-fulfillment time.
+
+Promotional Calendar
+
+Time discounts on mid-week slump days (Tuesday–Thursday) for high-volume bars to flatten demand curves.
    
 3. Which shipping routes are the most expensive?
+   ❓ Business Question: Meaning & Importance
+   “Which factory → customer ZIP routes incur the highest shipping costs?”
 
-question explained : what most expensive mean?
+   Meaning: Identifies the origin–destination pairs where logistics expenses are driving up costs.
 
-code:
+Importance:
+
+🚚 Cost Control: Pinpoints the “hot spots” in your shipping network that erode margins.
+
+🔍 Route Optimization: Guides decisions on rerouting, carrier negotiations, or local stocking.
+
+📦 Service Strategy: Balances service levels against cost—for example, offering premium vs. economy options.
    
 ```sql
  -- 1. Map every product_id to its factory
@@ -498,17 +616,47 @@ GROUP BY
 ORDER BY
   total_shipping_cost DESC
 LIMIT 10;
-```
-
- 
-
-
-the output 
+``` 
+![Analytics Dashboard](Assets/expensive_shipping_route.png)
 
 
+ 💡 Key Insights
+NYC Dominance (📍 New York, NY):
 
-DDD" Data_Driven_Decision"
+Four of the top five routes originate from Lot’s O’ Nuts to Manhattan ZIPs, each averaging $4.38–$5.06 per order—well above the company average.
 
+Premium vs. Standard (🎁):
+
+Wicked Choccy’s to 94122 (San Francisco) averages $5.56—suggesting premium-speed shipping or higher dimensional weight charges.
+
+West Coast Hotspots (🌉):
+
+San Francisco and Los Angeles routes appear twice for Lot’s O’ Nuts, averaging $4.22–$4.68—indicating consistent high costs in those metros.
+
+Order Volume vs. Cost (⚖️):
+
+High total costs often coincide with high order counts (e.g., 111 orders → $499), but average cost per order remains elevated, signifying structural distance or carrier pricing issues.
+
+Data Driven Decision 
+Negotiate Zone Pricing:
+
+Engage carriers for bulk-rate discounts on the top ZIP clusters (e.g., Manhattan, SF) to reduce avg. cost/order by 10–15 %.
+
+Local Micro-Fulfillment:
+
+Pilot a micro-hub or 3PL partnership in NYC and SF to cut cross-country haul charges—potentially saving $1–2/box.
+
+Dynamic Shipping Options:
+
+Offer customers a choice between “Standard” and “Expedited” with transparent cost breakdowns; incentivize longer-lead options during peak periods.
+
+Route Consolidation:
+
+Analyze daily shipment volumes to these ZIPs and consolidate into fewer, larger pickups or drop-shippers (e.g., pallet loads) to leverage LTL discounts.
+
+Monitor & Alert:
+
+Build a dashboard with alerts when any route’s avg. cost/order exceeds $4.00—triggering review and immediate remediation measures.
 
 
 
@@ -516,9 +664,20 @@ DDD" Data_Driven_Decision"
 **Geographic & Optimization**
 
 1. Which customer–factory pairs are least efficient (long distance + low margin)?
+   ❓ Business Question: Meaning & Importance
+“Which factory→customer ZIP pairs suffer the worst ‘miles per $1 profit’?”
 
-   explain miles_per_dollar_profit
-  
+Meaning: Identifies routes where long shipping distances and low order margins combine to erode profitability.
+
+Importance:
+
+🔍 Margin Protection: Flags loss-making or low-ROI routes.
+
+🚚 Logistics Focus: Guides where to test local micro-hubs or alternative carriers.
+
+⚖️ Pricing Strategy: Informs distance-based surcharges or minimum-order thresholds.
+
+   
 ```sql
 WITH
   -- 1. Associate each product with its factory’s coordinates
@@ -593,17 +752,59 @@ ORDER BY
   miles_per_dollar_profit DESC
 LIMIT 15;
 ```
-
- 
-
-
 the output 
 
+![Analytics Dashboard](Assets/customer_factory_pairs.png)
 
+💡 Key Insights
+Long Hauls, Thin Margins 🚛
 
-DDD" Data_Driven_Decision"
+Bristol (CT) route: ~2,200 mi for every $1 profit—unsustainable without intervention.
+
+Coastal Extremes 🌊
+
+West Coast (Sacramento, Edmonds) and Northeast (Concord, Bristol) dominate the top inefficiencies.
+
+Low-Volume Exacerbation 📉
+
+Many flagged routes have only 5–8 orders—fixed costs and distance overhead hit small batches hardest.
+
+Data Driven Decision 
+
+Local Micro-Fulfillment Centers 🏭
+
+Pilot small warehouses or 3PL partners near high-inefficiency ZIPs (e.g., Bristol, Sacramento) to slash cross-country miles.
+
+Distance-Based Surcharges 💸
+
+Introduce a tiered shipping fee for orders in the top “miles per $” buckets to preserve margin.
+
+Order Consolidation Incentives 📦
+
+Offer customers in remote ZIPs volume discounts or free-ship thresholds (e.g., $100 minimum) to increase per-order profit.
+
+Carrier Rate Negotiations 🤝
+
+Leverage route data to negotiate better zone rates or volume-based contracts on the worst-performing corridors.
+
+Ongoing Monitoring 📊
+
+Automate weekly “miles per $” reports with alerts when any route exceeds a defined threshold (e.g., 200 mi/$) for rapid action.
+
   
-2. Are there specific regions with higher return on sales?
+2. Which geographic regions deliver the highest return on sales (ROS)?
+   ❓ Business Question: Meaning & Importance
+“Which geographic regions deliver the highest return on sales (ROS)?”
+
+Meaning: Measures profit efficiency by region—i.e. how much gross profit each dollar of sales generates.
+
+Importance:
+
+🌎 Market Prioritization: Highlights markets with the healthiest margins.
+
+📈 Investment Allocation: Guides where to concentrate marketing, inventory, and support resources.
+
+⚖️ Strategic Balance: Balances growth (sales volume) against profitability.
 
 ```sql
 -- Return-on-Sales (ROS) by Region
@@ -637,9 +838,47 @@ LIMIT 10;
 ```
 the output 
 
+![Analytics Dashboard](Assets/ros.png)
+
+🚀 Key Insights
+
+Interior Leads 🚩
+
+Highest ROS (0.6746): each $1 of sales yields $0.67 profit—strong efficiency despite moderate volume.
+
+Gulf & Pacific Close Behind 🥈
+
+Both regions exceed 0.66 ROS, showing consistently healthy margins across diverse markets.
+
+Atlantic Strength 🥉
+
+Slightly lower ROS but robust sales and profit—opportunity to lift efficiency further.
+
+📊 Business Implications
+Profit Focus Over Volume: Regions like Gulf have fewer total sales than Pacific but deliver almost identical ROS—suggesting high-value customer segments.
+
+Resource Leverage: High-ROS regions can absorb increased marketing spend with minimal margin dilution.
+
+Underperformers (Outside Top 4): Regions not listed likely have ROS < 0.66—prime targets for cost reduction or pricing adjustments.
 
 
-DDD" Data_Driven_Decision"
+  Data_Driven_Decision"
+  
+  Scale High-ROS Markets 🚀
+
+Increase promotional budgets in Interior and Gulf to drive incremental volume while maintaining strong margins.
+
+Margin Improvement Plans 🛠
+
+For Atlantic, analyze product mix and channel costs to push ROS toward Pacific levels.
+
+Targeted Pricing Tests 💸
+
+Pilot dynamic pricing in lower-ROS regions (e.g. Midwest, Northeast) to identify optimal price-profit sweet spots.
+
+Optimize Channel Mix 📣
+
+Shift direct-to-consumer vs. wholesale balance in high-ROS regions to magnify margin gains.
 
 **Time-Based Trends**
 
@@ -670,6 +909,11 @@ FROM monthly
 -- 3. Filter to most recent 24 months
 WHERE period_start >= (DATE_TRUNC('month', NOW())::date - INTERVAL '24 months');
 
+```
+
+![Analytics Dashboard](Assets/sales_trend_month.png)
+
+```sql
 
 -- B. Quarterly Sales & Profit Trends (last 8 quarters = last 2 years =last 24 months)
 WITH quarterly AS (
@@ -696,13 +940,45 @@ WHERE period_start >= (DATE_TRUNC('quarter', NOW())::date - INTERVAL '24 months'
 
 the output 
 
+![Analytics Dashboard](Assets/sales_trend_quarter.png)
+
+Key Insights
+📊 Monthly Trends (Jun ’23–Jul ’24)
+Holiday Spikes: Sep ’23, Nov ’23, Dec ’23 show 2×–3× lifts in sales & profit vs. adjacent months.
+
+Post-Holiday Slump: Jan ’24–Feb ’24 dip (~40% drop in sales from Dec), then gradual recovery in Mar–Jun ’24.
+
+Summer Slowdown: Jul ’24 has lowest volume (143 units), likely seasonal.
+
+🌐 Quarterly Trends (Q2 ’23–Q3 ’24)
+Q4 Peaks: Q4 ’23 highest—$12.9 K sales, $8.6 K profit, 3.4 K units.
+
+Q1 Slump: Q1 ’24 drops ~49% in sales vs. Q4.
+
+Q2 Rebound: Q2 ’24 recovers ~42% vs. Q1.
 
 
 DDD" Data_Driven_Decision"
 
+Pre-Holiday Ramp-Up:
+
+Stock early and launch promotions in Sep–Oct to maximize holiday surge. 🎄
+
+Post-Holiday Recovery Programs:
+
+In Jan–Feb, deploy “New Year Deals” to soften the slump. 🌟
+
+Summer Engagement:
+
+Run limited-time “Summer Treat” bundles in Jul–Aug to counteract low season. ☀️
+
+Quarterly Review Cadence:
+
+Hold strategy check-ins each quarter-end to adjust forecasts and budgets based on latest trends. 🔄
+
 
    
-2. Are there specific weekdays or weekends with higher volume or profit?
+2. Which weekdays vs weekends drive the most orders and profit?
 
 ```sql
 -- Day-of-Week & Weekend vs. Weekday Metrics
@@ -758,20 +1034,44 @@ ORDER BY
     WHEN 'Sunday'    THEN 7
   END;
 ```
+![Analytics Dashboard](<Assets/weekdays & weekends.png>)
 
-code explanation:
+💡 Key Insights
+Mid-Week Leaders:
 
+Tuesday (17.5 % orders, 17.3 % profit) and Monday (16.7 %/16.8 %) are your busiest weekdays.
 
+Weekend Strength:
 
-the output 
+Sunday nearly matches Tuesday in both volume (17.4 %) and profit (17.6 %).
 
+Saturday holds a solid 13.3 % of orders and 12.9 % of profit—strong weekend engagement.
+
+Thursday & Friday Lulls:
+
+Orders dip sharply on Thursday (9.2 %) and Friday (9.9 %), indicating mid-week troughs.
 
 
 DDD" Data_Driven_Decision"
+Optimize Staffing & Fulfillment 🏭
+
+Schedule peak teams on Tuesdays, Sundays, and Mondays; assign lower headcount for Thursday–Friday maintenance.
+
+Promotional Cadence 🎯
+
+Launch “Mid-Week Boost” campaigns on Thursdays to smooth demand; highlight weekend flash sales on Saturdays.
+
+Email & Ad Timing ✉️
+
+Send targeted email blasts on Mondays and Sundays when open-rates and conversion potential are highest.
+
+Weekend Incentives 🛍️
+
+Offer “Weekend-Only” bundles or free-ship thresholds to capitalize on strong Saturday/Sunday traffic.
 
 **Advanced Questions**
 
-1. Who are the Top Lifetime Customers?
+1.Who are our highest–lifetime–value customers, and how do they ship?
 ```sql
 -- 1. Aggregate per customer and shipping mode
 WITH customer_totals AS (
@@ -818,20 +1118,63 @@ ORDER BY
   customer_rank
  LIMIT 10;
 ```
+![Analytics Dashboard](Assets/customer_overtime.png)
 
-code explanation:
+3️⃣ Business Value
+Prioritize High-Value Relationships: Focus marketing and service on customers generating the most revenue.
 
+Optimize Shipping Offers: Tailor shipping incentives (e.g., free upgrades) based on the ship_mode preferences of top customers.
 
+Inform Loyalty Tiers: Structure rewards and benefits around actual spend bracket
 
-the output 
+key insights 
+Modest Top Spend: The leading customer’s lifetime spend is $353—suggesting a relatively small dataset or early-stage business.
 
+Shipping Preferences:
 
+Second Class dominates among top spenders (ranks 1 & 3), indicating cost-sensitive but reliable delivery choices.
+
+First Class appears for rank 4—potential for premium shipping offers.
+
+Order Frequency vs. Spend:
+
+Customer 122336 made 4 orders totaling $353, averaging $88/order (high AOV).
+
+Customer 107202 made a single order (AOV $200), signaling occasional big-ticket purchases.
 
 DDD" Data_Driven_Decision"
 
-   
-2. How has profit changed over time for each category?
+Launch Tiered Loyalty:
 
+Offer “Second Class” shipping credits to top 5 customers to reinforce their preferred mode.
+
+Promote Premium Options:
+
+For customers using Standard/Second Class, market occasional First Class upgrades as paid add-ons.
+
+Personalized Outreach:
+
+Send VIP thank-you notes or small freebies to top 10 segment to boost retention and referrals.
+
+Upsell Bundles:
+
+Craft bundle deals aligned with average order values ($80–$200) to encourage slightly higher-frequency purchases.
+
+   
+2. How has gross profit for each product division evolved year-over-year?
+
+❓ Business Question: Meaning & Importance
+“How has gross profit for each product division evolved year-over-year?”
+
+Meaning: Tracks the annual performance trends of Chocolate, Other, and Sugar lines.
+
+Importance:
+
+📈 Growth Diagnostics: Identifies which divisions are accelerating or stalling.
+
+🔍 Risk Detection: Flags sudden profit declines needing immediate action.
+
+🎯 Resource Allocation: Guides investment toward high-momentum categories
  ```sql
 -- 1. Aggregate gross profit by division and year
 WITH division_yearly AS (
@@ -877,17 +1220,55 @@ ORDER BY
   division,
   order_year;
 ```
+![Analytics Dashboard](Assets/profit_overtime.png)
 
+💡 Key Insights
+Chocolate Roller-Coaster 🎢
 
-the output 
+Strong growth in 2023 (+21.6 %), then a dramatic drop in 2024 (−53 %).
 
+Suggests either a one-off disruption (supply, pricing) or market saturation.
 
+Other & Sugar Volatility ⚖️
+
+Both divisions spike in 2023 (Other +141 %, Sugar +629 %), then plummet in 2024 (≈−58 % & −74 %).
+
+Points to promotional or seasonal campaigns that weren’t sustained.
+
+No Steady Winner 🚩
+
+Every division experienced a sharp downturn in 2024—indicative of a company-wide headwind (e.g., cost inflation, competitive pressure).
 
 DDD" Data_Driven_Decision"
+
+Investigate 2024 Decline 🔍
+
+Perform root-cause analysis: pricing changes, supply chain issues, or competitor actions.
+
+Stabilize Promotions 📆
+
+If 2023 spikes were driven by discounts, plan a sustainable promotion calendar rather than one-off deals.
+
+Diversify Offerings 🌱
+
+Develop new SKUs or bundles in Chocolate to reignite growth and buffer against category swings.
+
+Margin Protection 💸
+
+Review cost structures in 2024—negotiate raw-material contracts or adjust pricing to recover lost profit.
 
 
 
 3. Which product lines should be moved to a different factory to optimize shipping routes?
+Meaning: Compares each division’s current fulfillment site against the closest alternative to quantify shipping-distance savings.
+
+Importance:
+
+🚚 Logistics Efficiency: Shorter routes cut fuel, labor, and carrier costs.
+
+⚖️ Margin Protection: Every mile saved boosts per-order profit.
+
+📈 Network Optimization: Guides strategic decisions on factory assignments and micro-hub investments.
 ```sql
 -- 1. Geo-encode each sale with division, origin factory, and customer coordinates
 WITH sale_geo AS (
@@ -959,14 +1340,47 @@ JOIN ranked AS d2
 WHERE d1.rank_by_distance > 1              -- exclude the already-optimal
 ORDER BY miles_saved DESC;````
 ```
-
- 
-
+![Analytics Dashboard](Assets/optimize_shipping.png)
 
 
-the output 
+ key insights
+ Sugar Division
 
+Top Opportunity: Moving from The Other Factory → Secret Factory saves 472 miles/order.
 
+Second Opportunity: Sugar Shack → Secret Factory saves 323 miles/order.
+
+Chocolate Division
+
+Lot’s O’ Nuts → Wicked Choccy’s yields 177 miles saved/order.
+
+Other Division
+
+Sugar Shack → Secret Factory saves 165.5 miles, and The Other Factory → Secret Factory saves 62.8 miles.
 
 DDD" Data_Driven_Decision"
 
+Pilot Relocation for Sugar 🍬
+
+Shift Sugar production from The Other Factory to Secret Factory for immediate ~30% distance reduction.
+
+Evaluate Chocolate Move 🍫
+
+Test a small batch of Chocolate orders from Wicked Choccy’s to confirm service levels before full migration.
+
+Consolidate “Other” Lines 🔗
+
+Centralize “Other” SKUs at Secret Factory to capture both 165- and 62-mile savings.
+
+Cost-Benefit Analysis 💸
+
+Calculate per-order savings (miles × cost/mile) vs. migration/setup costs to prioritize roll-out.
+
+
+
+
+Conclusion 📝
+What I Learned 💡
+Tools I Used 🛠️
+Next Steps ⏭️
+Contact 📬
