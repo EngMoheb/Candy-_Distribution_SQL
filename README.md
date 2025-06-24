@@ -895,7 +895,7 @@ DDD" Data_Driven_Decision"
 
 
 3. Which product lines should be moved to a different factory to optimize shipping routes?
-
+```sql
 -- 1. Geo-encode each sale with division, origin factory, and customer coordinates
 WITH sale_geo AS (
   SELECT
