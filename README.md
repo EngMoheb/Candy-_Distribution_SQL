@@ -293,11 +293,7 @@ ROUND(AVG(total_sales), 2) AS avg_sales_per_Order,
 ROUND(AVG(gross_profit), 2) AS avg_profit_per_Order
     FROM
         sales
-``` 
- 
-
-
-
+```
 here is the result:
 
 
@@ -598,7 +594,7 @@ GROUP BY
 HAVING COUNT(*) >= 5
 ORDER BY
   miles_per_dollar_profit DESC
-LIMIT 22;
+LIMIT 15;
 ```
 
  
