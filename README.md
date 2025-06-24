@@ -778,20 +778,24 @@ DDD" Data_Driven_Decision"
 
 **Advanced Questions**
 
-1. Who are the top 5 Customers Over Time?
+1. Who are the Top Lifetime Customers?
 ```sql
+-- 1. Aggregate per customer and shipping mode
 WITH customer_totals AS (
   SELECT
     customer_id,
-    COUNT(*)          AS num_orders,
     ship_mode,
-    SUM(total_sales)   AS total_sales,
-    SUM(gross_profit)  AS total_profit,
-    SUM(units)         AS total_units
+    COUNT(*)          AS num_orders,      -- total orders placed
+    SUM(total_sales)   AS total_sales,    -- total revenue generated
+    SUM(gross_profit)  AS total_profit,   -- total gross profit earned
+    SUM(units)         AS total_units     -- total units purchased
   FROM sales
-  GROUP BY customer_id,
-           ship_mode
+  GROUP BY
+    customer_id,
+    ship_mode
 ),
+
+-- 2. Rank customers by lifetime spend
 ranked_customers AS (
   SELECT
     customer_id,
@@ -801,21 +805,25 @@ ranked_customers AS (
     total_profit,
     total_units,
     ROW_NUMBER() OVER (
-      ORDER BY total_sales DESC
+      ORDER BY total_sales DESC          -- Rank highest-spending first
     ) AS customer_rank
   FROM customer_totals
 )
+
+-- 3. Retrieve the top five
 SELECT
   customer_id,
-  ship_mode,
   customer_rank,
-  num_orders,
   total_sales,
   total_profit,
-  total_units
-FROM ranked_customers
-ORDER BY customer_rank
-limit 5;
+  num_orders,
+  total_units,
+  ship_mode
+FROM 
+    ranked_customers
+ORDER BY 
+  customer_rank
+ LIMIT 10;
 ```
 
 code explanation:
@@ -832,48 +840,50 @@ DDD" Data_Driven_Decision"
 2. How has profit changed over time for each category?
 
  ```sql
- WITH division_yearly AS (
+-- 1. Aggregate gross profit by division and year
+WITH division_yearly AS (
   SELECT
-    EXTRACT(YEAR FROM s.order_date)::int AS order_year,
-    p.division,
-    SUM(s.gross_profit)                  AS total_profit
-  FROM sales s
-  JOIN products p
-    ON s.product_id = p.product_id
+  division,
+    EXTRACT(YEAR FROM order_date)::int    AS order_year,    -- calendar year                            -- product category
+    SUM(gross_profit)            AS total_profit   -- total yearly profit
+  FROM sales 
+  
   GROUP BY
-    EXTRACT(YEAR FROM s.order_date),
-    p.division
+  division,
+    EXTRACT(YEAR FROM order_date)
+    
 ),
+
+-- 2. Compute prior-year profit for each division
 division_trends AS (
   SELECT
     division,
     order_year,
     total_profit,
     LAG(total_profit) OVER (
-      PARTITION BY division
-      ORDER BY order_year
+      PARTITION BY division                    -- reset lag per category
+      ORDER BY order_year                      -- chronological order
     ) AS prev_year_profit
   FROM division_yearly
 )
+
+-- 3. Final: year-over-year change and percent change
 SELECT
   division,
   order_year,
   total_profit,
   prev_year_profit,
-  (total_profit - prev_year_profit)         AS change_in_profit,
+  (total_profit - prev_year_profit)        AS change_in_profit,    -- absolute diff
   ROUND(
     (total_profit - prev_year_profit)::numeric
     / NULLIF(prev_year_profit, 0)::numeric
-  , 4)                                       AS pct_change
+  , 4)                                      AS pct_change            -- relative diff
 FROM division_trends
-WHERE prev_year_profit IS NOT NULL
+WHERE prev_year_profit IS NOT NULL         -- exclude the first year (no prior data)
 ORDER BY
   division,
   order_year;
 ```
-
-code explanation:
-
 
 
 the output 
@@ -886,72 +896,78 @@ DDD" Data_Driven_Decision"
 
 3. Which product lines should be moved to a different factory to optimize shipping routes?
 
-```sql
--- 1. Attach each sale to its product’s division, factory, and customer coordinates
+-- 1. Geo-encode each sale with division, origin factory, and customer coordinates
 WITH sale_geo AS (
   SELECT
-    p.division,                     -- product category/division
-    f.factory_name,                 -- origin factory
+    p.division,                     -- product division/category
+    f.factory_name,                 -- factory fulfilling the order
     f.latitude  AS fac_lat,         -- factory latitude
     f.longitude AS fac_lng,         -- factory longitude
     u.lat       AS cust_lat,        -- customer ZIP latitude
     u.lng       AS cust_lng         -- customer ZIP longitude
   FROM sales s
   JOIN products p
-    ON s.product_id = p.product_id  -- link sale to product
+    ON s.product_id = p.product_id
   JOIN factories f
-    ON p.factory_name = f.factory_name  -- link product to factory
+    ON p.factory_name = f.factory_name
   JOIN us_zips u
-    ON s.postal_code = u.zip       -- link sale to customer ZIP
+    ON s.postal_code = u.zip
 ),
--- 2. Compute average shipping distance (Haversine) per division & factory
+
+-- 2. Calculate average shipping distance per division and factory
 div_fac_dist AS (
   SELECT
     division,
     factory_name,
     AVG(
-      3959 * acos(                  -- Earth radius in miles × central angle
+      3959 * acos(                  -- Haversine formula: miles between two lat/longs
         cos(radians(fac_lat))
         * cos(radians(cust_lat))
         * cos(radians(cust_lng) - radians(fac_lng))
         + sin(radians(fac_lat))
         * sin(radians(cust_lat))
       )
-    ) AS avg_distance_miles        -- average miles shipped per order
+    ) AS avg_distance_miles
   FROM sale_geo
-  GROUP BY division, factory_name  -- one row per division–factory
+  GROUP BY division, factory_name
 ),
--- 3. Rank factories by proximity for each division
+
+-- 3. Rank factories by their average distance for each division
 ranked AS (
   SELECT
     division,
     factory_name,
     avg_distance_miles,
     ROW_NUMBER() OVER (
-      PARTITION BY division       -- restart rank for each division
-      ORDER BY avg_distance_miles -- closest = rank 1
+      PARTITION BY division           -- reset ranking within each product division
+      ORDER BY avg_distance_miles     -- closest factory = rank 1
     ) AS rank_by_distance
   FROM div_fac_dist
 )
--- 4. Compare each division’s current factory to the optimal (rank 1) factory
+
+-- 4. Identify sub-optimal factories and their optimal alternative
 SELECT
   d1.division,
-  d1.factory_name                        AS current_factory,
+  d1.factory_name                         AS current_factory,
   ROUND(d1.avg_distance_miles::numeric, 1) AS current_avg_miles,
-  d2.factory_name                        AS optimal_factory,
+
+  -- **Add this** to show the name of the closest factory
+  d2.factory_name                         AS optimal_factory,
   ROUND(d2.avg_distance_miles::numeric, 1) AS optimal_avg_miles,
+
   ROUND(
     (d1.avg_distance_miles - d2.avg_distance_miles)::numeric
-  ,1)                                     AS miles_saved
-FROM ranked d1
-JOIN ranked d2
-  ON d1.division = d2.division
+  , 1)                                     AS miles_saved
+
+FROM ranked AS d1
+JOIN ranked AS d2
+  ON d1.division        = d2.division
  AND d2.rank_by_distance = 1               -- pick the closest factory
-WHERE d1.rank_by_distance > 1              -- exclude the optimal itself
-ORDER BY miles_saved DESC;                 -- greatest potential savings first
+WHERE d1.rank_by_distance > 1              -- exclude the already-optimal
+ORDER BY miles_saved DESC;````
 ```
 
-code explanation:
+ 
 
 
 
