@@ -1,11 +1,8 @@
 # 🏭Candy-Distribution_SQL🍭
 ![ Cover](Assets/Profile.jpg)
 
-
-Table of Contents 📑
-
 ## 📌 About the Project
-This project explores a real-world dataset about the US candy industry. We uploaded the CSV files into VS Code, created a PostgreSQL database, and established a connection between them. Also we created a clean database and prepare the data to answer key business questions about candy sales, factory efficiency, and regional trends.
+This project explores a real-world dataset about the US candy industry. We uploaded the CSV files into VS Code, created a PostgreSQL database, and established a connection between them. Also, we created a clean database and prepare the data to answer key business questions about candy sales, factory efficiency, and regional trends.
 
 ---
 ## 🎯 Objectives
@@ -1277,7 +1274,7 @@ SELECT
 
   ROUND(
     (d1.avg_distance_miles - d2.avg_distance_miles)::numeric
-  , 1)                                     AS miles_saved
+  1)                                     AS miles_saved
 
 FROM ranked AS d1
 JOIN ranked AS d2
@@ -1292,7 +1289,7 @@ ORDER BY miles_saved DESC;````
  
  - Sugar Division
 
-Top Opportunity: Moving from The Other Factory → Secret Factory saves 472 miles/order.
+Top Opportunity: Moving from The Other Factory to Secret Factory saves 472 miles per order.
 
 Second Opportunity: Sugar Shack → Secret Factory saves 323 miles/order.
 
@@ -1322,11 +1319,74 @@ Centralize “Other” SKUs at Secret Factory to capture both 165- and 62-mile s
 
 Calculate per-order savings (miles × cost/mile) vs. migration/setup costs to prioritize roll-out.
 
+---
+## 🎯 Conclusion
+
+This three-phase project transformed raw candy sales data into actionable business insights:
+
+1. **📊 Data Transformation Journey**  
+   - Cleaned and standardized messy data
+   - Built a structured analysis using SQL
+   - Created modular queries for clear insights
+
+2. **🔍 Key Discoveries**  
+   - **Profit & Sales Patterns**:  
+     Found where revenue and sales quantity meet
+   - **Shipping Efficiency**:  
+     Identified costly routes and customer-factory pairs
+   - **Time Trends**:  
+     Uncovered seasonal and weekly sales patterns
+
+3. **🚀 Business Impact**  
+   - Better logistics planning
+   - Smarter promotion timing
+   - Improved regional strategies
+   - Data-driven decision making
+
+> *Raw data → Clean data → Business value*
 
 
+---
+## 🧠 What I Learned
 
-Conclusion 📝
-What I Learned 💡
+Through this project, I gained valuable skills in:
+
+- **📊 Advanced SQL Techniques**  
+  Built complex queries using:
+  - CTEs for step-by-step analysis
+  - CASE logic for custom categories
+  - Window functions for rankings and trends
+  - Haversine formula for shipping distance calculations
+
+- **📖 Data Storytelling**  
+
+  Translated numbers into clear business stories:
+   - Explained insights for non-technical stakeholders
+  - Showed both "what happened" and "why it matters"
+
+- **🔄 Analytical Framework**  
+
+   Developed a repeatable 5-step approach:
+  1. Data Cleaning → 2. Exploration → 3. Deep Analysis → 4. Recommendations → 5. Delivery
+
+
+- **📈 Visualization Planning**  
+
+   Prepared for Power BI dashboards by:
+  - Defining key metrics
+  - Planning interactive filters
+  - Designing map visualizations
+  - Structuring KPI cards
  
-Next Steps ⏭️
-Contact 📬
+## Next Step ⏭️
+
+_Develop interactive dashboards using Power BI._
+
+## Contact 📬
+
+**Lead Analyst:** Eng_Ahmed_Moheb  
+
+🔗 [LinkedIn](https://www.linkedin.com/in/ahmed-moheb-09b37135a/)  
+---
+
+*Thank you for exploring 🏭Candy-Distribution_Analysis🍭!*
