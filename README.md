@@ -13,10 +13,10 @@ In this project, our main objectives are:
 
 - ✅ Understand and structure the US Candy sales data.  
 - ✅ Solve real business problems by identifying profitable products, comparing sales to targets, and providing advanced data analysis.
+- ✅ Uncover data trends and hidden insights using advanced SQL techniques.
 - ✅ Explore seasonality and regional trends in candy sales.  
 - ✅ Compare product performance against division targets.  
 - ✅ Build a maintainable, clean database schema with a clear ER diagram.
-- ✅ Uncover data trends and hidden insights using advanced SQL techniques.
 ---
 
 ## 🗂️ Data Source & Context
