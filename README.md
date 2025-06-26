@@ -1377,10 +1377,7 @@ Through this project, I gained valuable skills in:
   - Planning interactive filters
   - Designing map visualizations
   - Structuring KPI cards
- 
-## Next Step ⏭️
-
-_Develop interactive dashboards using Power BI._
+---
 
 ## Contact 📬
 
