@@ -5,18 +5,31 @@
 Table of Contents 📑
 
 ## 📌 About the Project
-This project explores a real-world dataset about the US candy industry. We uploaded the CSV files into VS Code, created a PostgreSQL database, and established a connection between them. Also we build a clean database foundation and prepare the data to answer key business questions about candy sales, factory efficiency, and regional trends.
+This project explores a real-world dataset about the US candy industry. We uploaded the CSV files into VS Code, created a PostgreSQL database, and established a connection between them. Also we created a clean database and prepare the data to answer key business questions about candy sales, factory efficiency, and regional trends.
 
 ---
 ## 🎯 Objectives
 In this project, our main objectives are:
 
-- ✅ Understand and structure the US Candy sales data.  
+- ✅ Understand and structure the US Candy sales data.
+- ✅ Build a maintainable, clean database schema with a clear ER diagram.
 - ✅ Solve real business problems by identifying profitable products, comparing sales to targets, and providing advanced data analysis.
-- ✅ Uncover data trends and hidden insights using advanced SQL techniques.
 - ✅ Explore seasonality and regional trends in candy sales.  
 - ✅ Compare product performance against division targets.  
-- ✅ Build a maintainable, clean database schema with a clear ER diagram.
+- ✅ Uncover data trends and hidden insights using advanced SQL techniques.
+---
+
+## 🛠️ Tools I Used
+
+- **PostgreSQL** – Relational database for storing and querying data.  
+- **VS Code** – IDE for writing SQL, managing CSVs, and connecting to the database.  
+- **Git & GitHub** – Version control and documentation of the entire process.  
+- **Sider AI** –  Explored multiple AI models for the data analysis journey. 
+- **DeepSeek** – Automated code review & best-practice suggestions.  
+- **Perplexity** – Contextual search for technical guidance & fact-checking.
+- **GPT**–  Drafted and refined narrative content
+- **Grammarly** – Writing assistant to polish documentation.  
+
 ---
 
 ## 🗂️ Data Source & Context
@@ -53,23 +66,26 @@ _**Here is a short description for each CSV file & its columns**_:
 
 5. **us_zips.csv**  
    - **Columns**: `zip`, `lat`, `lng`, `city`, `state_id`, `state_name`,  
-     `zcta`, `population`, `density`, `county_fips`, `county_name`, `timezone`  
+     `zcta`, `population`, `density`, `county_fips`, `county_name`, `timezone` , etc.   
    - **Describes**: ZIP-level geographic and demographic data for mapping customers.
 
 6. **Dictionary.csv**
    
-    _Lists descriptions for the tables & their columns._
+  -  _**Lists descriptions for all the tables & their columns.**_
+   
 
----  dinner
+ 
 
 > **_Now let's move into the deep work🕵️‍♂️_**
+
+
 
 ## 📑 Phase 1: Business & Data Understanding
 - ✅ **Created** the PostgreSQL database and defined tables matching our CSV structures.  
 - ✅ **Uploaded** CSV data into those tables using VS Code’s SQL editor.
 - ✅ Verified row counts for each table matched CSV sources.  
 - 🧹 Dropped unused columns from `us_zips` to keep only zip, zcta, state, county, population, density, timezone.   
-- ✅ **Clarified** the business questions we’ll answer by analysing our dataset:
+- ✅ **Clarified** the business questions we’ll answer by analyzing our dataset:
 
  **General Questions**
 
@@ -90,7 +106,9 @@ _**Here is a short description for each CSV file & its columns**_:
 **Advanced Questions**
 
 1.Who are our highest–lifetime–value customers, and how do they ship?
+
 2.How has gross profit for each product division evolved year-over-year?
+
 3. Which product lines should be moved to a different factory to optimize shipping routes?
    
 
@@ -123,18 +141,6 @@ _**Here is a short description for each CSV file & its columns**_:
 
 ---
 
-## 🛠️ Tools Used
-
-- **PostgreSQL** – Relational database for storing and querying data.  
-- **VS Code** – IDE for writing SQL, managing CSVs, and connecting to the database.  
-- **Git & GitHub** – Version control and documentation of the entire process.  
-- **Sider AI** –  Explored multiple AI models for the data analysis journey. 
-- **DeepSeek** – Automated code review & best-practice suggestions.  
-- **Perplexity** – Contextual search for technical guidance & fact-checking.
-- **GPT**–  Drafted and refined narrative content
-- **Grammarly** – Writing assistant to polish documentation.  
-
----
  
 # **Phase:** 2 of 3  🧹 Data Cleaning & Preparation 
  
@@ -168,7 +174,8 @@ For each table, we:
 
 ### 🔢 Numeric Columns  
 - Eliminated negative values🚫
-- ⚖️ erified geographic coordinates: Confirmed coordinates were Earth-bound 🌍 and prices validity ≥ $0
+- ⚖️ Verified geographic coordinates: Confirmed coordinates were Earth-bound 🌍
+-  Prices validity ≥ $0
 -🚩Flagged unusual values for review 
 
 ### 📅 Date Columns  
@@ -211,11 +218,14 @@ For each table, we:
 - 🚢 **Cleaned up shipping modes** — removed invalid entries like "Same Day"
   
   ## 🕰️ Special Case: 1930 Shipments  
-**The Mystery:**Some orders claimed to ship _before_ they were placed!
+
+**The Mystery:**  Some orders claimed to ship _**before**_ they were placed!
+
 **Findings:**  
 - 📅  56 records dated to 1930  
 - 🕰️ Ship dates < order dates  
-**Resolution:**  
+
+**solution:**  
 - 🗑️ Deleted all impossible records
 - 🔍 Implemented delivery metrics to prevent similar issues in the future
 **Why?** Like stale candy, bad data spoils everything!  
@@ -255,15 +265,15 @@ _After our data spa care, we_:
 > *"Clean data is like premium chocolate — pure, smooth, and deeply  satisfying!"** 
 
 ---
-➡️ Next Steps: Analysis Phase!
+➡️ Next Steps: **Analysis Phase**!
 With our dataset cleaned and polished, we’re ready to:
 
 - 🍫 Uncover regional sales trends
 - 📈  Identify top-performing products
 - 🚚 Optimize delivery operations
 - 🎯 Evaluate sales target performance
-
-  **Let the sweet insights flow!** 🍬✨
+  
+> *"Let the sweet insights flow!** 🍬✨ !"** 
 
 ---
 
@@ -276,80 +286,91 @@ With our dataset cleaned and polished, we’re ready to:
 - **Common Table Expressions (CTEs)** for modular queries  
 - **Window Functions** for running totals and rankings  
 - **Date/Time Functions** for extracting ,months & quarters  
-- **Query Optimization** with indexes and EXPLAIN  
-
 ---
 
 ## 🏁 Big Picture Analysis
 
-**Business Question:**  
 > *What is our overall sales and profit profile, and how is profit distributed across order sizes?*
-
----
 
 ### ❓ Why This Matters
 - ✅ **Benchmarking:** _Sets the stage_ for the next deeper analyses by revealing whether we’re operating on thin margins or enjoying healthy per-order returns.  
 - ✅ **Risk Identification:** Exposes reliance on low-profit orders—critical for assessing if fulfillment and shipping costs might be eating into our bottom line.  
-- ✅ **Strategic Focus:** Highlights whether we need to prioritize **volume growth**, **value extraction** (upsells), or **cost-control** measures before tackling more granular questions.
-----
+- ✅ **Strategic Focus:** Highlights whether we need to prioritize **volume growth**, **value extraction** (upsells), or **cost-control** measures before tackling more questions.
+
+**_SQL_Query_Code_** 👇
 ```sql
---Simple Aggregate & basic summary statistics
+-- ============================================================================
+-- Section 1: Overall Sales & Profit Summary
+-- Purpose: Provide key headline metrics for a quick snapshot
+--          of order volume, revenue generated, and overall profitability.
+-- ============================================================================
 
 SELECT
- count(*)  AS num_orders,
- Sum(total_sales) AS total_sales,
- sum(gross_profit) AS total_profit,
-ROUND(AVG(total_sales), 2) AS avg_sales_per_Order,
-ROUND(AVG(gross_profit), 2) AS avg_profit_per_Order
-    FROM
-        sales
+  COUNT(*) AS num_orders,                      -- Total number of orders processed
+  SUM(total_sales) AS total_sales,             -- Cumulative revenue from all orders
+  SUM(gross_profit) AS total_profit,           -- Cumulative gross profit from all orders
+  ROUND(AVG(total_sales), 2) AS avg_sales_per_order,   -- Average revenue per order, rounded
+  ROUND(AVG(gross_profit), 2) AS avg_profit_per_order  -- Average gross profit per order, rounded
+FROM sales;  -- Aggregates metrics across the entire sales table
 ```
-Here is the result:
-
+**_Query_result_** 👇
 ![Analytics Dashboard](Assets/1.png)
 
+**_SQL_Query_Code_** 👇
 ```sql
---Bucketed Profit Distribution
+-- ============================================================================
+-- Section 2: Profit Distribution by Bucket
+-- Purpose: Categorize orders into profit brackets to highlight where most of
+--          our profit is coming from and to identify opportunities for growth.
+-- ============================================================================
 
+-- Step 2.1: Define profit buckets in a CTE for clarity and reuse
 WITH profit_buckets AS (
   SELECT
-    gross_profit,
+    gross_profit,                              -- Raw profit value for each order
     CASE
-      WHEN gross_profit < 50   THEN '$0–$50'
-      WHEN gross_profit < 100  THEN '$50–$100'
-      WHEN gross_profit < 200  THEN '$100–$200'
-      ELSE '$200+' 
-    END AS bucket_label
+      WHEN gross_profit < 50   THEN '$0–$50'   -- Orders with low profit
+      WHEN gross_profit < 100  THEN '$50–$100' -- Orders with moderate profit
+      WHEN gross_profit < 200  THEN '$100–$200'-- Orders with higher profit
+      ELSE '$200+'                            -- Top-tier profit orders
+    END AS bucket_label                        -- Label for the profit bucket
   FROM sales
 )
+-- Step 2.2: Aggregate count and profit by bucket, and compute percentage share
 SELECT
-  bucket_label,
-  COUNT(*)                AS num_orders,
-  SUM(gross_profit)       AS bucket_total_profit,
-  ROUND(100.0 * COUNT(*) / SUM(COUNT(*)) OVER (), 2) AS pct_of_orders
-FROM profit_buckets
-GROUP BY bucket_label
-ORDER BY
+  bucket_label,                                -- Profit bracket label
+  COUNT(*) AS num_orders,                      -- Number of orders in this bracket
+  SUM(gross_profit) AS bucket_total_profit,    -- Total profit contributed by this bracket
+  ROUND(
+    100.0 * COUNT(*) 
+    / SUM(COUNT(*)) OVER (), 2
+  ) AS pct_of_orders                           -- Percentage of total orders in this bracket
+FROM profit_buckets                            -- Use the CTE defined above
+GROUP BY bucket_label                          -- Group metrics by profit bracket
+ORDER BY                                       -- Ensure buckets appear in logical profit order
   CASE 
     WHEN bucket_label = '$0–$50'   THEN 1
     WHEN bucket_label = '$50–$100' THEN 2
-    WHEN bucket_label = '$100–200' THEN 3
-
+    WHEN bucket_label = '$100–$200' THEN 3
     ELSE 4
   END;
 ```
-Output
+**_Query_result_** 👇
+
 ![Analytics Dashboard](Assets/big_picture_2.png)
 
 ### 💡 Key Insights
+ 
+ **Thin Margins per Order**  
+  - Average profit per order is only **\$9.57**, while average sales are **\$14.29**—indicating small order sizes and tight margins.
+    
 - **High Volume of Low-Profit Orders**  
   - 99.7 % of orders generate **<$50** profit, yet these make up ~97.5 % of total transactions.  
-- **Thin Margins per Order**  
-  - Average profit per order is only **\$9.57**, while average sales are **\$14.29**—indicating small order sizes and tight margins.  
+
 - **Few High-Profit Outliers**  
   - Orders above **\$50** profit are vanishingly rare (< 0.5 %), suggesting limited upsell or bulk-order activity.
 
-### 🚀 Data-Driven Decisions
+### 🚀 Data-Driven Decisions:
 - **Boost Average Order Value**  
   - Introduce *bundle deals* or tiered free-shipping thresholds (e.g., free ship over **\$30**) to push more orders into higher-profit buckets.  
 - **Targeted Promotions**  
@@ -361,45 +382,58 @@ Output
 - **Upsell High-Margin SKUs**  
   - Analyze product mix to promote items with **>\$50** profit potential; feature these in emails, on-site banners, and during checkout.
 
+> *know we have got some knowledge of our candy data, we can know dive into the bussiness question.*
+
+---
  **General Questions**
 
-1.“Which product divisions & individual SKUs drive our profits?”
+1._**Which product divisions & individual SKUs drive our profits?**_
 
 ```sql
--- (Category)- Level Profit Query
+-- ============================================================================
+-- Section 1: Division-Level Profit Summary
+-- Purpose: Show overall revenue and profit contribution by each major division 
+--          so stockholders can identify which divisions drive the most value.
+-- ============================================================================
 
 SELECT
-  division,
-  SUM(total_sales)   AS total_sales,
-  SUM(gross_profit)  AS total_profit
+  division,                                -- Business unit or product division name
+  SUM(total_sales)   AS total_sales,       -- Total revenue generated by this division
+  SUM(gross_profit)  AS total_profit       -- Total gross profit generated by this division
 FROM 
-      sales 
+  sales                                    -- Source table containing all sales transactions
 GROUP BY 
-      division
+  division                                 -- Aggregate metrics per division
 ORDER BY 
-    total_profit DESC;
+  total_profit DESC;                       -- Rank divisions from highest to lowest profitability
+
 ```
 
 ![Analytics Dashboard](Assets/category_profit.png)
 
 ```sql 
---Product‐Level Profit Query
+-- ============================================================================
+-- Section 2: Top 10 Products by Profit
+-- Purpose: Highlight the ten individual products that generate the highest 
+--          gross profit, enabling focused decisions on product strategy.
+-- ============================================================================
 
 SELECT
-  p.product_id,
-  p.product_name,
-  SUM(s.total_sales)  AS total_sales,
-  SUM(s.gross_profit) AS total_profit
- FROM 
-      sales s
+  p.product_id,                            -- Unique identifier for each product
+  p.product_name,                          -- Descriptive product name
+  SUM(s.total_sales)  AS total_sales,      -- Total revenue for this product across all orders
+  SUM(s.gross_profit) AS total_profit      -- Total gross profit for this product
+FROM 
+  sales s                                  -- Alias 's' for sales transactions
 JOIN 
-  products p
-ON s.product_id = p.product_id
+  products p                               -- Alias 'p' for product master data
+  ON s.product_id = p.product_id           -- Link each sale to its corresponding product record
 GROUP BY
-   p.product_id, p.product_name
+  p.product_id, 
+  p.product_name                           -- Group metrics per unique product
 ORDER BY 
-  total_profit DESC
-LIMIT 10;
+  total_profit DESC                        -- Rank products from highest to lowest profitability
+LIMIT 10;   
 ```
 ![Analytics Dashboard](Assets/product_profit.png)
 ### 💡 Key Insights  
@@ -412,21 +446,20 @@ LIMIT 10;
 - **Weak Sugar Performance** 📉  
   Sugar division’s low volume and profit suggest low demand or margin pressure.
 
----
- 🚀 Data Driven Decisions
 ### 🚀 Data-Driven Decisions  
 - **Double-Down on Wonka Bars** 🍫  
   Launch limited-edition flavors and bundle packs to capitalize on top sellers.  
 - **Mitigate Concentration Risk** 🔄  
-  Develop or acquire new high-margin chocolate variants to diversify the hero lineup.  
+reduce the risk of relying too heavily on a small number of products. This can be achieved by developing or acquiring new, profitable chocolate varieties, thereby spreading the risk across a wider range of offerings.
 - **Boost “Other” Niche SKUs** 🎨  
   Feature quirky items in social campaigns (e.g., “Taste the Wall!”) to grow impulse buys.  
-- **Revitalize Sugar Division** 🍬  
+- **improve the performance of the  Sugar Division** 🍬  
   Evaluate pricing, packaging, or formulation changes for Gobstopper & Toffee, or consider sunsetting low-performers.  
 - **Inventory & Production Alignment** 🏭  
   Prioritize factory capacity and raw-material procurement for top-profit SKUs to avoid stockouts.
-  
-2. Which product divisions and SKUs move the most units?
+
+   ---
+2. _**Which product divisions and SKUs move the most units?**_
  
 ### ❓ Why It Matters
 - 📦 **Inventory Planning:** Ensures high-turnover items are always in stock.  
@@ -434,35 +467,46 @@ LIMIT 10;
 - 🎯 **Marketing Focus:** Guides promotional efforts toward popular products to maximize volume-driven growth.
 - Reveals where customer demand is strongest in terms of quantity, not just revenue or profit.
 ```sql
--- Top_Selling_Categories_by_Quantity
+-- ============================================================================
+-- Section 1: Top-Selling Categories by Quantity
+-- Purpose: Identify which divisions (categories) move the most units overall,
+--          giving stockholders insight into volume-driven performance.
+-- ============================================================================
+
 SELECT
-  division,
-  SUM(units) AS total_units_sold
+  division,                                -- Business unit or product division
+  SUM(units)       AS total_units_sold     -- Total number of units sold in this division
 FROM 
-  sales 
+  sales                                    -- Source table of all sales transactions
 GROUP BY
-   division
+  division                                 -- Aggregate units by division
 ORDER BY
-   total_units_sold DESC;
+  total_units_sold DESC;                   -- List divisions from highest to lowest volume
 ```
 ![Analytics Dashboard](Assets/category_quantity.png)
 
 ```sql
--- Top_Selling_Products_by_Quantity
+-- ============================================================================
+-- Section 2: Top-Selling Products by Quantity
+-- Purpose: Highlight the individual products with the greatest unit sales,
+--          enabling focused inventory and marketing strategies.
+-- ============================================================================
 
 SELECT
-  p.product_id,
-  p.product_name,
-  SUM(s.units) AS total_units_sold
- FROM 
-  sales s
-JOIN products p 
-ON s.product_id = p.product_id
+  p.product_id,                            -- Unique identifier for each product
+  p.product_name,                          -- Descriptive name of the product
+  SUM(s.units)      AS total_units_sold    -- Total units sold for this product
+FROM 
+  sales s                                  -- Alias 's' for the sales transactions table
+JOIN 
+  products p                               -- Alias 'p' for the products master table
+  ON s.product_id = p.product_id           -- Link sales records to product details
 GROUP BY 
-    p.product_name, p.product_id
+  p.product_id, 
+  p.product_name                           -- Aggregate units by product
 ORDER BY
-     total_units_sold DESC
-LIMIT 9;
+  total_units_sold DESC                    -- Rank products from highest to lowest units sold
+LIMIT 9;                                   -- Show only the top 9 products by volume
 ```
 ![Analytics Dashboard](Assets/product_quantity.png)
 ### 💡 Key Insights
@@ -472,8 +516,6 @@ LIMIT 9;
   *“Other” novelties (Gum, Kazookles, Wallpaper) have loyal but small followings.*  
 - **Underperforming Sugar** 📉  
   *Sugar division’s low unit counts indicate market gaps or promotional neglect.*
-
----
 
 ### 🚀 Data-Driven Decisions
 - **Optimize Inventory for Wonka Bars** 📈  
@@ -486,12 +528,12 @@ LIMIT 9;
   Place fast movers (top 5 bars) in the most accessible picking zones to reduce fulfillment time.  
 - **Promotional Calendar** 📆  
   Time discounts on mid-week slump days (Tuesday–Thursday) for high-volume bars to flatten demand curves.  
-
-3. Which shipping routes are the most expensive?
+---
+3. _**Which shipping routes are the most expensive?**_
 
 Meaning: “Which factory → customer ZIP routes incur the highest shipping costs?”
 
-Importance:
+### ❓ Why It Matters:
 
 🚚 Cost Control: Pinpoints the “hot spots” in our shipping network that erode margins.
 
@@ -561,38 +603,38 @@ GROUP BY
 ORDER BY
   total_shipping_cost DESC
 LIMIT 10;
-``` 
-![Analytics Dashboard](Assets/expensive_shipping_route.png)
+```
+ ![Analytics Dashboard](Assets/expensive_shipping_route.png)
 
  💡 Key Insights
-NYC Dominance (📍 New York, NY):
+ 
+- NYC Dominance (📍 New York, NY):
 
 Four of the top five routes originate from Lot’s O’ Nuts to Manhattan ZIPs, each averaging $4.38–$5.06 per order—well above the company average.
 
-Premium vs. Standard (🎁):
+- Premium vs. Standard (🎁):
 
 Wicked Choccy’s to 94122 (San Francisco) averages $5.56—suggesting premium-speed shipping or higher dimensional weight charges.
 
-West Coast Hotspots (🌉):
+- West Coast Hotspots (🌉):
 
 San Francisco and Los Angeles routes appear twice for Lot’s O’ Nuts, averaging $4.22–$4.68—indicating consistent high costs.
 
-Order Volume vs. Cost (⚖️):
+- Order Volume vs. Cost (⚖️):
 
 High total costs often coincide with high order counts (e.g., 111 orders → $499), but average cost per order remains elevated, signifying structural distance or carrier pricing issues.
 
-Data Driven Decision 
-Negotiate Zone Pricing:
+### 🚀 Data Driven Decision:
+
+- Negotiate Zone Pricing:
 
 Engage carriers for bulk-rate discounts on the top ZIP clusters (e.g., Manhattan, SF) to reduce avg. cost/order by 10–15 %.
 
-Local Micro-Fulfillment:
+- Local Micro-Fulfillment:
 
 Pilot a micro-hub or 3PL partnership in NYC and SF to cut cross-country haul charges—potentially saving $1–2/box.
- 
 
-
-
+---
 
 **Geographic & Optimization**
 
