@@ -234,9 +234,9 @@ For each table, we:
 We resolved the connectivity between related tables:
 -  **🛟 Rescued 427 sales** linked to missing products
 - **📬 Repaired ZIP code gaps**
--  **🏷️ Ensured all products matched to valid division**
+-  **🏷️ Ensured all products matched to a valid division**
 - **Reconnected orphaned data entries to their parent tables**.
-> *"Like matching candy to wrappers - every piece belongs somewhere!"*  
+_"Like matching candy to wrappers - every piece belongs somewhere!"_
 ---
 
 ## ⚡ Performance Optimization 
@@ -244,7 +244,7 @@ We resolved the connectivity between related tables:
 - **⏱️ Dramatically improved query speed for future deep analysis** 
 - **🐢→⚡Transformed slow operations**  
 
-> *Without indexes, queries crawl like caramel spills... 🐌
+> Without indexes, queries crawl like caramel spills... 🐌
 ---
 
 ## 🎉 Results
@@ -260,7 +260,7 @@ _After our data spa care, we_:
 ✅ Analysis-Ready 
 
  
-> *"Clean data is like premium chocolate — pure, smooth, and deeply  satisfying!"** 
+> *Clean data is like premium chocolate — pure, smooth, and deeply satisfying!*
 
 ---
 ➡️ Next Steps: **Analysis Phase**!
@@ -271,7 +271,7 @@ With our dataset cleaned and polished, we’re ready to:
 - 🚚 Optimize delivery operations
 - 🎯 Evaluate sales target performance
   
-> *"Let the sweet insights flow!** 🍬✨ !"** 
+> *Let the sweet insights flow! 🍬✨ !*
 
 ---
 
