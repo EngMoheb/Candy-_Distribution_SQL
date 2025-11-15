@@ -30,7 +30,8 @@ In this project, our main objectives are:
 ---
 
 ## 🗂️ Data Source & Context
-**_Source👉_**: [**Maven Analytics “US Candy Distributor”**](https://www.mavenanalytics.io/data-playground?order=date_added%2Cdesc&search=candy%20distributor)
+**_Source👉_**: [**Maven Analytics “US Candy Distributor”**](https://mavenanalytics.io/data-playground/us-candy-distributor)
+
 
 
 
